@@ -1,3 +1,7 @@
+// HTML elements
+let thetaOutput;
+let phiOutput;
+
 var nRows = 40;
 var nColumns = 40;
 
@@ -102,11 +106,15 @@ window.onload = function init() {
 
     document.getElementById("increase-theta-button").onclick = function () {
         theta += degreeChangeAmount;
+        thetaOutput.innerHTML = `The theta angle: ${theta % 360} degrees`;
         updateCameraPosition();
     };
 
     document.getElementById("decrease-theta-button").onclick = function () {
         theta -= degreeChangeAmount;
+        if (theta < 0)
+            theta += 360;
+        thetaOutput.innerHTML = `The theta angle: ${theta % 360} degrees`;
         updateCameraPosition();
     };
 
@@ -114,6 +122,7 @@ window.onload = function init() {
         if (phi >= 180 - degreeChangeAmount)
             return;
         phi += degreeChangeAmount;
+        phiOutput.innerHTML = `The phi angle: ${phi} degrees`;
         updateCameraPosition();
     };
 
@@ -121,6 +130,7 @@ window.onload = function init() {
         if (phi <= degreeChangeAmount)
             return;
         phi -= degreeChangeAmount;
+        phiOutput.innerHTML = `The phi angle: ${phi} degrees`;
         updateCameraPosition();
     };
 
@@ -143,6 +153,9 @@ window.onload = function init() {
         ytop *= 1.1;
         bottom *= 1.1;
     };
+
+    thetaOutput = document.getElementById("theta-output");
+    phiOutput = document.getElementById("phi-output");
 
     render();
 }
