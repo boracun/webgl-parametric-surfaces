@@ -4,3 +4,36 @@ body {
     font-family: 'Poppins', sans-serif;
 }
 
+#gl-canvas {
+    display: inline-block;
+}
+
+.button-list {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.button {
+    background-color: #2b2b2b; /* Green background */
+    border: 1px solid black; /* Green border */
+    color: white; /* White text */
+    padding: 10px 24px; /* Some padding */
+    cursor: pointer; /* Pointer/hand icon */
+    width: 100%; /* Set a width if needed */
+    display: block; /* Make the buttons appear below each other */
+    font-family: 'Poppins', sans-serif;
+}
+
+.button:not(:last-child) {
+    border-bottom: none; /* Prevent double borders */
+}
+
+/* Add a background color on hover */
+.button:hover {
+    background-color: #4f4f4f;
+}
+
+input {
+    display: block; /* Make the buttons appear below each other */
+    font-family: 'Poppins', sans-serif;
+}
