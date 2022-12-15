@@ -100,46 +100,46 @@ window.onload = function init() {
     projectionMatrix = ortho(left, right, bottom, ytop, near, far);
     gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
 
-    document.getElementById("Button5").onclick = function () {
+    document.getElementById("increase-theta-button").onclick = function () {
         theta += degreeChangeAmount;
         updateCameraPosition();
     };
 
-    document.getElementById("Button6").onclick = function () {
+    document.getElementById("decrease-theta-button").onclick = function () {
         theta -= degreeChangeAmount;
         updateCameraPosition();
     };
 
-    document.getElementById("Button7").onclick = function () {
+    document.getElementById("increase-phi-button").onclick = function () {
         if (phi >= 180 - degreeChangeAmount)
             return;
         phi += degreeChangeAmount;
         updateCameraPosition();
     };
 
-    document.getElementById("Button8").onclick = function () {
+    document.getElementById("decrease-phi-button").onclick = function () {
         if (phi <= degreeChangeAmount)
             return;
         phi -= degreeChangeAmount;
         updateCameraPosition();
     };
 
-    document.getElementById("Button9").onclick = function () {
+    document.getElementById("wider-button").onclick = function () {
         left *= 0.9;
         right *= 0.9;
     };
 
-    document.getElementById("Button10").onclick = function () {
+    document.getElementById("narrower-button").onclick = function () {
         left *= 1.1;
         right *= 1.1;
     };
 
-    document.getElementById("Button11").onclick = function () {
+    document.getElementById("higher-button").onclick = function () {
         ytop *= 0.9;
         bottom *= 0.9;
     };
 
-    document.getElementById("Button12").onclick = function () {
+    document.getElementById("shorter-button").onclick = function () {
         ytop *= 1.1;
         bottom *= 1.1;
     };
