@@ -25,9 +25,9 @@ var gl;
 var near = -10;
 var far = 10;
 var radius = 1.0;
-var theta = -Math.PI / 4;
-var phi = 0.0;
-var dr = 5.0 * Math.PI / 180.0;
+var theta = 0.0;    // Theta determines the degree between: x-axis - the center of the sphere - the camera position
+var phi = 90.0;     // Phi determines the degree between: the top of the sphere - the center of the sphere - the camera position
+const degreeChangeAmount = 15.0;
 
 var left = -10.0;
 var right = 10.0;
@@ -40,6 +40,17 @@ var eye;
 
 const at = vec3(0.0, 0.0, 0.0);
 const up = vec3(0.0, 1.0, 0.0);
+
+function updateCameraPosition() {
+    eye = vec3(
+        radius * Math.cos(radians(theta)) * Math.sin(radians(phi)),
+        radius * Math.cos(radians(phi)),
+        radius * Math.sin(radians(theta)) * Math.sin(radians(phi))
+    );
+
+    modelViewMatrix = lookAt(eye, at, up);
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+}
 
 window.onload = function init() {
     canvas = document.getElementById("gl-canvas");
@@ -85,31 +96,49 @@ window.onload = function init() {
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
     projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
 
-    // buttons for moving viewer and changing size
+    updateCameraPosition();     // Sets the model-view matrix
+    projectionMatrix = ortho(left, right, bottom, ytop, near, far);
+    gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
+
     document.getElementById("Button5").onclick = function () {
-        theta += dr;
+        theta += degreeChangeAmount;
+        updateCameraPosition();
     };
+
     document.getElementById("Button6").onclick = function () {
-        theta -= dr;
+        theta -= degreeChangeAmount;
+        updateCameraPosition();
     };
+
     document.getElementById("Button7").onclick = function () {
-        phi += dr;
+        if (phi >= 180 - degreeChangeAmount)
+            return;
+        phi += degreeChangeAmount;
+        updateCameraPosition();
     };
+
     document.getElementById("Button8").onclick = function () {
-        phi -= dr;
+        if (phi <= degreeChangeAmount)
+            return;
+        phi -= degreeChangeAmount;
+        updateCameraPosition();
     };
+
     document.getElementById("Button9").onclick = function () {
         left *= 0.9;
         right *= 0.9;
     };
+
     document.getElementById("Button10").onclick = function () {
         left *= 1.1;
         right *= 1.1;
     };
+
     document.getElementById("Button11").onclick = function () {
         ytop *= 0.9;
         bottom *= 0.9;
     };
+
     document.getElementById("Button12").onclick = function () {
         ytop *= 1.1;
         bottom *= 1.1;
@@ -120,15 +149,6 @@ window.onload = function init() {
 
 var render = function () {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    eye = vec3(radius * Math.sin(theta) * Math.cos(phi),
-        radius * Math.sin(theta) * Math.sin(phi), radius * Math.cos(theta));
-
-    modelViewMatrix = lookAt(eye, at, up);
-    projectionMatrix = ortho(left, right, bottom, ytop, near, far);
-
-    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
-    gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
 
 // render columns of data then rows
     /*
