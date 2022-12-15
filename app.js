@@ -86,20 +86,6 @@ window.onload = function init() {
     projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
 
     // buttons for moving viewer and changing size
-    document.getElementById("Button1").onclick = function () {
-        near *= 1.1;
-        far *= 1.1;
-    };
-    document.getElementById("Button2").onclick = function () {
-        near *= 0.9;
-        far *= 0.9;
-    };
-    document.getElementById("Button3").onclick = function () {
-        radius *= 2.0;
-    };
-    document.getElementById("Button4").onclick = function () {
-        radius *= 0.5;
-    };
     document.getElementById("Button5").onclick = function () {
         theta += dr;
     };
