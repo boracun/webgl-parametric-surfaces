@@ -1,6 +1,12 @@
+// Constants
+const DEGREE_CHANGE_AMOUNT = 15.0;
+const ZOOM_CHANGE_AMOUNT = 0.25;
+const INITIAL_PROJECTION_CONSTANT = 10.0;
+
 // HTML elements
 let thetaOutput;
 let phiOutput;
+let zoomOutput;
 
 var nRows = 40;
 var nColumns = 40;
@@ -31,12 +37,13 @@ var far = 10;
 var radius = 1.0;
 var theta = 0.0;    // Theta determines the degree between: x-axis - the center of the sphere - the camera position
 var phi = 90.0;     // Phi determines the degree between: the top of the sphere - the center of the sphere - the camera position
-const degreeChangeAmount = 15.0;
 
-var left = -10.0;
-var right = 10.0;
-var ytop = 10.0;
-var bottom = -10.0;
+var left = -INITIAL_PROJECTION_CONSTANT;
+var right = INITIAL_PROJECTION_CONSTANT;
+var ytop = INITIAL_PROJECTION_CONSTANT;
+var bottom = -INITIAL_PROJECTION_CONSTANT;
+
+var zoomAmount = 0.0;
 
 var modelViewMatrix, projectionMatrix;
 var modelViewMatrixLoc, projectionMatrixLoc;
@@ -54,6 +61,16 @@ function updateCameraPosition() {
 
     modelViewMatrix = lookAt(eye, at, up);
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+}
+
+function updateProjection() {
+    left = -INITIAL_PROJECTION_CONSTANT + zoomAmount;
+    right = INITIAL_PROJECTION_CONSTANT - zoomAmount;
+    ytop = INITIAL_PROJECTION_CONSTANT - zoomAmount;
+    bottom = -INITIAL_PROJECTION_CONSTANT + zoomAmount;
+
+    projectionMatrix = ortho(left, right, bottom, ytop, near, far);
+    gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
 }
 
 window.onload = function init() {
@@ -101,17 +118,16 @@ window.onload = function init() {
     projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
 
     updateCameraPosition();     // Sets the model-view matrix
-    projectionMatrix = ortho(left, right, bottom, ytop, near, far);
-    gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
+    updateProjection();         // Sets the projection matrix
 
     document.getElementById("increase-theta-button").onclick = function () {
-        theta += degreeChangeAmount;
+        theta += DEGREE_CHANGE_AMOUNT;
         thetaOutput.innerHTML = `The theta angle: ${theta % 360} degrees`;
         updateCameraPosition();
     };
 
     document.getElementById("decrease-theta-button").onclick = function () {
-        theta -= degreeChangeAmount;
+        theta -= DEGREE_CHANGE_AMOUNT;
         if (theta < 0)
             theta += 360;
         thetaOutput.innerHTML = `The theta angle: ${theta % 360} degrees`;
@@ -119,19 +135,35 @@ window.onload = function init() {
     };
 
     document.getElementById("increase-phi-button").onclick = function () {
-        if (phi >= 180 - degreeChangeAmount)
+        if (phi >= 180 - DEGREE_CHANGE_AMOUNT)
             return;
-        phi += degreeChangeAmount;
+        phi += DEGREE_CHANGE_AMOUNT;
         phiOutput.innerHTML = `The phi angle: ${phi} degrees`;
         updateCameraPosition();
     };
 
     document.getElementById("decrease-phi-button").onclick = function () {
-        if (phi <= degreeChangeAmount)
+        if (phi <= DEGREE_CHANGE_AMOUNT)
             return;
-        phi -= degreeChangeAmount;
+        phi -= DEGREE_CHANGE_AMOUNT;
         phiOutput.innerHTML = `The phi angle: ${phi} degrees`;
         updateCameraPosition();
+    };
+
+    document.getElementById("zoom-in-button").onclick = function () {
+        if (zoomAmount >= INITIAL_PROJECTION_CONSTANT - ZOOM_CHANGE_AMOUNT)
+            return;
+        zoomAmount += ZOOM_CHANGE_AMOUNT;
+
+        zoomOutput.innerHTML = `The zoom amount: ${zoomAmount}`;
+        updateProjection();
+    };
+
+    document.getElementById("zoom-out-button").onclick = function () {
+        zoomAmount -= ZOOM_CHANGE_AMOUNT;
+
+        zoomOutput.innerHTML = `The zoom amount: ${zoomAmount}`;
+        updateProjection();
     };
 
     document.getElementById("wider-button").onclick = function () {
@@ -156,6 +188,7 @@ window.onload = function init() {
 
     thetaOutput = document.getElementById("theta-output");
     phiOutput = document.getElementById("phi-output");
+    zoomOutput = document.getElementById("distance-output");
 
     render();
 }
