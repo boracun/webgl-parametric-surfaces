@@ -166,26 +166,6 @@ window.onload = function init() {
         updateProjection();
     };
 
-    document.getElementById("wider-button").onclick = function () {
-        left *= 0.9;
-        right *= 0.9;
-    };
-
-    document.getElementById("narrower-button").onclick = function () {
-        left *= 1.1;
-        right *= 1.1;
-    };
-
-    document.getElementById("higher-button").onclick = function () {
-        ytop *= 0.9;
-        bottom *= 0.9;
-    };
-
-    document.getElementById("shorter-button").onclick = function () {
-        ytop *= 1.1;
-        bottom *= 1.1;
-    };
-
     thetaOutput = document.getElementById("theta-output");
     phiOutput = document.getElementById("phi-output");
     zoomOutput = document.getElementById("distance-output");
