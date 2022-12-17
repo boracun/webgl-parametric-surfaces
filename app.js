@@ -188,10 +188,10 @@ var render = function () {
                 }
             }*/
 
-    for (var i = 0; i < nRows; i++) {
+    for (let i = 0; i < nRows; i++) {
         gl.drawArrays(gl.LINE_STRIP, i * nColumns, nColumns);
     }
-    for (var i = 0; i < nColumns; i++) {
+    for (let i = 0; i < nColumns; i++) {
         gl.drawArrays(gl.LINE_STRIP, i * nRows + pointsArray.length / 2, nRows);
     }
 
