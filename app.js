@@ -8,6 +8,16 @@ const PER_VERTEX_OPTION = 1;
 const PER_FRAGMENT_OPTION = 2;
 const REALISTIC_OPTION = 3;
 
+const lightPosition = vec4(1.0, 1.0, 1.0, 0.0);
+const lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
+const lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
+const lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+
+const materialAmbient = vec4(1.0, 0.0, 1.0, 1.0);
+const materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
+const materialSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+const materialShininess = 20.0;
+
 // HTML elements
 let thetaOutput;
 let phiOutput;
@@ -135,6 +145,16 @@ window.onload = function init() {
 
     updateCameraPosition();     // Sets the model-view matrix
     updateProjection();         // Sets the projection matrix
+
+    let ambientProduct = mult(lightAmbient, materialAmbient);
+    let diffuseProduct = mult(lightDiffuse, materialDiffuse);
+    let specularProduct = mult(lightSpecular, materialSpecular);
+
+    gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"), flatten(ambientProduct));
+    gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"), flatten(diffuseProduct));
+    gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"), flatten(specularProduct));
+    gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition));
+    gl.uniform1f(gl.getUniformLocation(program, "shininess"), materialShininess);
 
     document.getElementById("increase-theta-button").onclick = function () {
         theta += DEGREE_CHANGE_AMOUNT;
