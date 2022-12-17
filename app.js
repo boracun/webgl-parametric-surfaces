@@ -3,6 +3,11 @@ const DEGREE_CHANGE_AMOUNT = 15.0;
 const ZOOM_CHANGE_AMOUNT = 0.25;
 const INITIAL_PROJECTION_CONSTANT = 10.0;
 
+const DEFAULT = 0
+const PER_VERTEX_OPTION = 1;
+const PER_FRAGMENT_OPTION = 2;
+const REALISTIC_OPTION = 3;
+
 // HTML elements
 let thetaOutput;
 let phiOutput;
@@ -51,6 +56,8 @@ var eye;
 
 const at = vec3(0.0, 0.0, 0.0);
 const up = vec3(0.0, 1.0, 0.0);
+
+let shadingOption = DEFAULT;
 
 function updateCameraPosition() {
     eye = vec3(
@@ -164,6 +171,21 @@ window.onload = function init() {
 
         zoomOutput.innerHTML = `The zoom amount: ${zoomAmount}`;
         updateProjection();
+    };
+
+    document.getElementById("wireframe-button").onclick = function () {
+        shadingOption = DEFAULT;
+        gl.uniform1f(gl.getUniformLocation(program, "shadingOption"), shadingOption);
+    };
+
+    document.getElementById("per-vertex-button").onclick = function () {
+        shadingOption = PER_VERTEX_OPTION;
+        gl.uniform1f(gl.getUniformLocation(program, "shadingOption"), shadingOption);
+    };
+
+    document.getElementById("per-fragment-button").onclick = function () {
+        shadingOption = PER_FRAGMENT_OPTION;
+        gl.uniform1f(gl.getUniformLocation(program, "shadingOption"), shadingOption);
     };
 
     thetaOutput = document.getElementById("theta-output");

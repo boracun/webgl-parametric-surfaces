@@ -5,25 +5,148 @@
     <title>Parametric Surface Generation</title>
 
     <script id="vertex-shader" type="x-shader/x-vertex">
-        attribute  vec4 vPosition;
+        attribute vec4 vPosition;
 
         uniform mat4 modelViewMatrix;
         uniform mat4 projectionMatrix;
+        uniform float shadingOption;
+        varying float sOption;
+
+        // ===== Needed for per vertex shading =====
+        attribute vec4 vNormal;
+
+        varying vec4 fColor;
+
+        uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+        uniform vec4 lightPosition;
+        uniform float shininess;
+        uniform mat3 normalMatrix;
+        // ===== Needed for per vertex shading =====
+
+        // ===== Needed for per fragment shading =====
+        varying vec3 N, L, E;
+        varying vec4 ambientProductFragment, diffuseProductFragment, specularProductFragment;
+        varying float shininessFragment;
+        // ===== Needed for per fragment shading =====
 
         void main()
         {
-            gl_Position = projectionMatrix*modelViewMatrix*vPosition;
+            sOption = shadingOption;
+
+            // Default Wireframe
+            if(shadingOption == 0.0)
+            {
+                gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+            }
+
+            // Per fragment shading
+            else if(shadingOption == 2.0)
+            {
+                vec3 pos = (modelViewMatrix * vPosition).xyz;
+
+                // check for directional light
+                if(lightPosition.w == 0.0) L = normalize(lightPosition.xyz);
+                else L = normalize(lightPosition.xyz - pos);
+
+                E = -normalize(pos);
+                N = normalize(normalMatrix*vNormal.xyz);
+
+                gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+                
+                ambientProductFragment = ambientProduct;
+                diffuseProductFragment = diffuseProduct;
+                specularProductFragment = specularProduct;
+                shininessFragment = shininess;
+            }
+
+            // Per vertex shading
+            else if(shadingOption == 1.0)
+            {
+                // pos is vertex position in eye coordinates
+                vec3 pos = (modelViewMatrix * vPosition).xyz;
+
+                // vector from vertex position to light source
+                vec3 L;
+
+                // check for directional light
+                if(lightPosition.w == 0.0) L = normalize(lightPosition.xyz);
+                else L = normalize(lightPosition.xyz - pos);
+
+                // Because the eye point the is at the origin
+                // the vector from the vertex position to the eye is
+                vec3 E = -normalize(pos);
+
+                // halfway vector
+                vec3 H = normalize(L + E);
+
+                // Transform vertex normal into eye coordinates
+                vec3 N = normalize(normalMatrix*vNormal.xyz);
+
+                // Compute terms in the illumination equation
+                vec4 ambient = ambientProduct;
+
+                float Kd = max(dot(L, N), 0.0);
+                vec4 diffuse = Kd*diffuseProduct;
+
+                float Ks = pow(max(dot(N, H), 0.0), shininess);
+                vec4 specular = Ks * specularProduct;
+
+                if(dot(L, N) < 0.0) {
+                    specular = vec4(0.0, 0.0, 0.0, 1.0);
+                }
+            
+                gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+                fColor = ambient + diffuse + specular;
+                fColor.a = 1.0;
+            }
         }
     </script>
 
     <script id="fragment-shader" type="x-shader/x-fragment">
         precision mediump float;
 
-        //uniform vec4 fColor;
+        varying float sOption;
+        varying vec4 fColor;
+
+        varying vec3 N, L, E;
+        varying vec4 ambientProductFragment, diffuseProductFragment, specularProductFragment;
+        varying float shininessFragment;
 
         void main()
         {
-            gl_FragColor = vec4(0.7, 0.7, 0.7, 1.0);
+            // Default Wireframe
+            if(sOption == 0.0)
+            {
+                gl_FragColor = vec4(0.7, 0.7, 0.7, 1.0);
+            }
+
+            // Per vertex shading
+            else if(sOption == 1.0)
+            {
+                gl_FragColor = fColor;
+            }
+
+            // Per fragment shading
+            else if(sOption == 2.0)
+            {
+                vec4 fColor;
+    
+                vec3 H = normalize(L + E);
+                vec4 ambient = ambientProductFragment;
+            
+                float Kd = max(dot(L, N), 0.0);
+                vec4 diffuse = Kd*diffuseProductFragment;
+            
+                float Ks = pow(max(dot(N, H), 0.0), shininessFragment);
+                vec4 specular = Ks * specularProductFragment;
+                
+                if(dot(L, N) < 0.0) specular = vec4(0.0, 0.0, 0.0, 1.0);
+            
+                fColor = ambient + diffuse + specular;
+                fColor.a = 1.0;
+            
+                gl_FragColor = fColor;
+            }
         }
     </script>
 
@@ -45,8 +168,13 @@
         <button id="decrease-theta-button" class="button">Rotate the Camera CW</button>
         <button id="increase-phi-button" class="button">Rotate the Camera Lower</button>
         <button id="decrease-phi-button" class="button">Rotate the Camera Upper</button>
+        <br>
         <button id="zoom-in-button" class="button">Zoom In</button>
         <button id="zoom-out-button" class="button">Zoom Out</button>
+        <br>
+        <button id="wireframe-button" class="button">Render as Wireframe</button>
+        <button id="per-vertex-button" class="button">Render with Per Vertex Shading</button>
+        <button id="per-fragment-button" class="button">Render with Per Fragment Shading</button>
     </div>
 
     <div id="output-list" class="button-list">
