@@ -31,6 +31,7 @@ var u = 0; // 0 <= u <= 2*PI
 var v = 0; // 0 <= v <= 2*PI
 
 var pointsArray = [];
+var normalsArray = [];      // TODO: Normals array needs to be calculated
 const black = vec4(0.0, 0.0, 0.0, 1.0);
 const white = vec4(1.0, 1.0, 1.0, 1.0);
 
@@ -120,6 +121,14 @@ window.onload = function init() {
     var vPosition = gl.getAttribLocation(program, "vPosition");
     gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
+
+    var nBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, nBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(normalsArray), gl.STATIC_DRAW);
+
+    var vNormal = gl.getAttribLocation(program, "vNormal");
+    gl.vertexAttribPointer(vNormal, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vNormal);
 
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
     projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
