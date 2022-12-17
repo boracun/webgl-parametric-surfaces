@@ -83,7 +83,7 @@ window.onload = function init() {
 
     gl.viewport(0, 0, canvas.width, canvas.height);
 
-    gl.clearColor(1.0, 1.0, 0.0, 1.0);
+    gl.clearColor(0.2, 0.2, 0.2, 1.0);
 
     // vertex array of data for nRows and nColumns of line strips
     for (var i = 0; i < nRows; i++) {
