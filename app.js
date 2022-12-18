@@ -3,6 +3,21 @@ const DEGREE_CHANGE_AMOUNT = 15.0;
 const ZOOM_CHANGE_AMOUNT = 0.25;
 const INITIAL_PROJECTION_CONSTANT = 10.0;
 
+const DEFAULT = 0
+const PER_VERTEX_OPTION = 1;
+const PER_FRAGMENT_OPTION = 2;
+const REALISTIC_OPTION = 3;
+
+const lightPosition = vec4(1.0, 1.0, 1.0, 0.0);
+const lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
+const lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
+const lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+
+const materialAmbient = vec4(1.0, 0.0, 1.0, 1.0);
+const materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
+const materialSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+const materialShininess = 20.0;
+
 // HTML elements
 let thetaOutput;
 let phiOutput;
@@ -26,6 +41,7 @@ var u = 0; // 0 <= u <= 2*PI
 var v = 0; // 0 <= v <= 2*PI
 
 var pointsArray = [];
+var normalsArray = [];      // TODO: Normals array needs to be calculated
 const black = vec4(0.0, 0.0, 0.0, 1.0);
 const white = vec4(1.0, 1.0, 1.0, 1.0);
 
@@ -47,10 +63,13 @@ var zoomAmount = 0.0;
 
 var modelViewMatrix, projectionMatrix;
 var modelViewMatrixLoc, projectionMatrixLoc;
+var normalMatrix, normalMatrixLoc;
 var eye;
 
 const at = vec3(0.0, 0.0, 0.0);
 const up = vec3(0.0, 1.0, 0.0);
+
+let shadingOption = DEFAULT;
 
 function updateCameraPosition() {
     eye = vec3(
@@ -60,7 +79,14 @@ function updateCameraPosition() {
     );
 
     modelViewMatrix = lookAt(eye, at, up);
+    normalMatrix = [
+        vec3(modelViewMatrix[0][0], modelViewMatrix[0][1], modelViewMatrix[0][2]),
+        vec3(modelViewMatrix[1][0], modelViewMatrix[1][1], modelViewMatrix[1][2]),
+        vec3(modelViewMatrix[2][0], modelViewMatrix[2][1], modelViewMatrix[2][2])
+    ];
+    
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
+    gl.uniformMatrix3fv(normalMatrixLoc, false, flatten(normalMatrix));
 }
 
 function updateProjection() {
@@ -114,11 +140,30 @@ window.onload = function init() {
     gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
 
+    var nBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, nBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(normalsArray), gl.STATIC_DRAW);
+
+    var vNormal = gl.getAttribLocation(program, "vNormal");
+    gl.vertexAttribPointer(vNormal, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vNormal);
+
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
     projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
+    normalMatrixLoc = gl.getUniformLocation(program, "normalMatrix");
 
     updateCameraPosition();     // Sets the model-view matrix
     updateProjection();         // Sets the projection matrix
+
+    let ambientProduct = mult(lightAmbient, materialAmbient);
+    let diffuseProduct = mult(lightDiffuse, materialDiffuse);
+    let specularProduct = mult(lightSpecular, materialSpecular);
+
+    gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"), flatten(ambientProduct));
+    gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"), flatten(diffuseProduct));
+    gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"), flatten(specularProduct));
+    gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition));
+    gl.uniform1f(gl.getUniformLocation(program, "shininess"), materialShininess);
 
     document.getElementById("increase-theta-button").onclick = function () {
         theta += DEGREE_CHANGE_AMOUNT;
@@ -164,6 +209,21 @@ window.onload = function init() {
 
         zoomOutput.innerHTML = `The zoom amount: ${zoomAmount}`;
         updateProjection();
+    };
+
+    document.getElementById("wireframe-button").onclick = function () {
+        shadingOption = DEFAULT;
+        gl.uniform1f(gl.getUniformLocation(program, "shadingOption"), shadingOption);
+    };
+
+    document.getElementById("per-vertex-button").onclick = function () {
+        shadingOption = PER_VERTEX_OPTION;
+        gl.uniform1f(gl.getUniformLocation(program, "shadingOption"), shadingOption);
+    };
+
+    document.getElementById("per-fragment-button").onclick = function () {
+        shadingOption = PER_FRAGMENT_OPTION;
+        gl.uniform1f(gl.getUniformLocation(program, "shadingOption"), shadingOption);
     };
 
     thetaOutput = document.getElementById("theta-output");
