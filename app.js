@@ -112,6 +112,7 @@ window.onload = function init() {
     gl.viewport(0, 0, canvas.width, canvas.height);
 
     gl.clearColor(0.0, 0.223, 0.349, 1.0);
+    gl.enable(gl.DEPTH_TEST);
 
     // vertex array of data for nRows and nColumns of line strips
     for (let i = 0; i < nRows - 1; i++) {
