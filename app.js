@@ -29,7 +29,7 @@ var nColumns = 40;
 // data for radial hat function: sin(Pi*r)/(Pi*r)
 
 var a = 1.2; // 1.1 <= a <= 1.3
-var b = 3; // 3 <= b <= 16
+var b = 7; // 3 <= b <= 16
 var c = 1; // 1 <= c <= 2
 var j = 2; // 2 <= j <= 12
 var k = 1; // 0 <= k <= 3
@@ -37,8 +37,8 @@ var l = 1; // 0 <= l <= 3
 var m = 0; // -3 <= m <= 3
 var R = 1.375; // 1 <= R <= 2
 var r = 1; // 1 <= r <= 2
-var u = 0; // 0 <= u <= 2*PI
-var v = 0; // 0 <= v <= 2*PI
+//var u = 0; // 0 <= u <= 2*PI
+//var v = 0; // 0 <= v <= 2*PI
 
 var pointsArray = [];
 var normalsArray = [];      // TODO: Normals array needs to be calculated
@@ -48,8 +48,8 @@ const white = vec4(1.0, 1.0, 1.0, 1.0);
 var canvas;
 var gl;
 
-var near = -10;
-var far = 10;
+var near = -100;
+var far = 100;
 var radius = 1.0;
 var theta = 0.0;    // Theta determines the degree between: x-axis - the center of the sphere - the camera position
 var phi = 90.0;     // Phi determines the degree between: the top of the sphere - the center of the sphere - the camera position
@@ -112,17 +112,52 @@ window.onload = function init() {
     gl.clearColor(0.2, 0.2, 0.2, 1.0);
 
     // vertex array of data for nRows and nColumns of line strips
-    for (var i = 0; i < nRows; i++) {
-        v = i * Math.PI / (nRows - 1);
+    for (var i = 0; i < nRows - 1; i++) {
+		let u1 = i * 2 * Math.PI / (nRows - 1);	
+		let u2 = (i + 1) * 2 * Math.PI / (nRows - 1);
+        
+		//v = i * Math.PI / (nRows - 1);
 
-        for (var j = 0; j < nColumns; j++) {
-            u = j * Math.PI / (nColumns - 1);
+        for (var index = 0; index < nColumns - 1; index++) {
+			let v1 = index * 2 * Math.PI / (nColumns - 1);
+			let v2 = (index + 1) * 2 * Math.PI / (nColumns - 1);
 
-            var x = (R + r * Math.cos(v)) * (Math.pow(a, u) * Math.cos(j * u));
-            var y = (R + r * Math.cos(v)) * (-Math.pow(a, u) * Math.sin(j * u));
-            var z = (-c) * (b + r * Math.sin(v)) * Math.pow(a, u) * (k * Math.sin(v));
-
-            pointsArray.push(vec4(x, y, z, 1.0));
+			// v1 u1
+			var x1 = (R + r * Math.cos(v1)) * (Math.pow(a, u1) * Math.cos(j * u1));
+			var y1 = (R + r * Math.cos(v1)) * (-Math.pow(a, u1) * Math.sin(j * u1));
+			var z1 = -c * (b + r * Math.sin(v1)) * Math.pow(a, u1) * k + 10;
+			
+			// v1 u2
+			var x2 = (R + r * Math.cos(v1)) * (Math.pow(a, u2) * Math.cos(j * u2));
+			var y2 = (R + r * Math.cos(v1)) * (-Math.pow(a, u2) * Math.sin(j * u2));
+			var z2 = -c * (b + r * Math.sin(v1)) * Math.pow(a, u2) * k + 10;
+			
+			// v2 u2
+			var x3 = (R + r * Math.cos(v2)) * (Math.pow(a, u2) * Math.cos(j * u2));
+			var y3 = (R + r * Math.cos(v2)) * (-Math.pow(a, u2) * Math.sin(j * u2));
+			var z3 = -c * (b + r * Math.sin(v2)) * Math.pow(a, u2) * k + 10;
+			
+			// v2 u1
+			var x4 = (R + r * Math.cos(v2)) * (Math.pow(a, u1) * Math.cos(j * u1));
+			var y4 = (R + r * Math.cos(v2)) * (-Math.pow(a, u1) * Math.sin(j * u1));
+			var z4 = -c * (b + r * Math.sin(v2)) * Math.pow(a, u1) * k + 10;
+			
+			pointsArray.push(vec4(x1, y1, z1, 1.0)); // v1 u1
+			pointsArray.push(vec4(x2, y2, z2, 1.0)); // v1 u2
+			pointsArray.push(vec4(x3, y3, z3, 1.0)); // v2 u2
+			pointsArray.push(vec4(x4, y4, z4, 1.0)); // v2 u1
+			
+			/*
+			console.log("v and u: ", v1, u1); // v1 u1
+			console.log("point 1: ", vec4(x1, y1, z1, 1.0));
+			console.log("v and u: ", v1, u2);
+			console.log("point 2: ", vec4(x3, y3, z3, 1.0)); // v1 u2
+			console.log("v and u: ", v2, u2);
+			console.log("point 3: ", vec4(x2, y2, z2, 1.0)); // v2 u2
+			console.log("v and u: ", v2, u1);
+			console.log("point 4: ", vec4(x4, y4, z4, 1.0)); // v2 u1*/
+			
+			
         }
     }
 
@@ -237,23 +272,19 @@ var render = function () {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 // render columns of data then rows
-    /*
-        for (var i = 0; i < nRows; i += 4)
-            {
-                for (var i = 0; i < nColumns; i++) {
-                    gl.uniform4fv(vColor, flatten(white));
-                    gl.drawArrays(gl.TRIANGLE_FAN, i, 4);
-                    gl.uniform4fv(vColor, flatten(black));
-                    gl.drawArrays(gl.LINE_STRIP, i, 4);
-                }
-            }*/
-
+    
+        for (var i = 0; i < pointsArray.length; i += 4) {
+            gl.drawArrays(gl.LINE_LOOP, i, 4);  
+        }
+/*
     for (let i = 0; i < nRows; i++) {
-        gl.drawArrays(gl.LINE_STRIP, i * nColumns, nColumns);
+
+        gl.drawArrays(gl.LINE_LOOP, i * nColumns, nColumns);
     }
     for (let i = 0; i < nColumns; i++) {
-        gl.drawArrays(gl.LINE_STRIP, i * nRows + pointsArray.length / 2, nRows);
-    }
+		
+        gl.drawArrays(gl.LINE_LOOP, i * nRows + pointsArray.length / 2, nRows);
+    }*/
 
     requestAnimFrame(render);
 }
