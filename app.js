@@ -124,6 +124,9 @@ window.onload = function init() {
 			let v1 = index * 2 * Math.PI / (nColumns - 1);
 			let v2 = (index + 1) * 2 * Math.PI / (nColumns - 1);
 
+
+			// vertex calculation
+			
 			// v1 u1
 			let x1 = (R + r * Math.cos(v1)) * (Math.pow(a, u1) * Math.cos(j * u1));
 			let y1 = (R + r * Math.cos(v1)) * (-Math.pow(a, u1) * Math.sin(j * u1));
@@ -148,6 +151,71 @@ window.onload = function init() {
 			pointsArray.push(vec4(x2, y2, z2, 1.0)); // v1 u2
 			pointsArray.push(vec4(x3, y3, z3, 1.0)); // v2 u2
 			pointsArray.push(vec4(x4, y4, z4, 1.0)); // v2 u1
+			
+			// normal vector calculation
+			// First point
+			let cross1xOfPoint1 = Math.pow(a, u1) * Math.cos(j * u1) * (-r * Math.sin(v1));
+			let cross1yOfPoint1 = -Math.pow(a, u1) * Math.cos(j * u1) * (-r * Math.sin(v1));
+			let cross1zOfPoint1 = -c * Math.pow(a, u1) * k * (r * Math.cos(v1));
+			
+			let cross2xOfPoint1 = (R + r * Math.cos(v1)) * (Math.pow(a, u1) * Math.log(a) * Math.cos(j * u1) + Math.pow(a, u1) * (-j * Math.sin(j * u1)));
+			let cross2yOfPoint1 = (R + r * Math.cos(v1)) * (-Math.pow(a, u1) * Math.log(a) * Math.sin(j * u1) - Math.pow(a, u1) * (j * Math.cos(j * u1)));
+			let cross2zOfPoint1 = -c * (b + r * Math.sin(v1)) * Math.pow(a, u1) * Math.log(a) * k;
+			
+			let cross1 = vec4(cross1xOfPoint1, cross1yOfPoint1, cross1zOfPoint1, 0.0);
+			let cross2 = vec4(cross2xOfPoint1, cross2yOfPoint1, cross2zOfPoint1, 0.0);
+			
+			let crossPoint = cross(cross1, cross2);
+			
+			normalsArray.push(crossPoint);
+			
+			//Second point
+			let cross1xOfPoint2 = Math.pow(a, u2) * Math.cos(j * u2) * (-r * Math.sin(v1));
+			let cross1yOfPoint2 = -Math.pow(a, u2) * Math.cos(j * u2) * (-r * Math.sin(v1));
+			let cross1zOfPoint2 = -c * Math.pow(a, u2) * k * (r * Math.cos(v1));
+			
+			let cross2xOfPoint2 = (R + r * Math.cos(v1)) * (Math.pow(a, u2) * Math.log(a) * Math.cos(j * u2) + Math.pow(a, u2) * (-j * Math.sin(j * u2)));
+			let cross2yOfPoint2 = (R + r * Math.cos(v1)) * (-Math.pow(a, u2) * Math.log(a) * Math.sin(j * u2) - Math.pow(a, u2) * (j * Math.cos(j * u2)));
+			let cross2zOfPoint2 = -c * (b + r * Math.sin(v1)) * Math.pow(a, u2) * Math.log(a) * k;
+			
+			cross1 = vec4(cross1xOfPoint2, cross1yOfPoint2, cross1zOfPoint2, 0.0);
+			cross2 = vec4(cross2xOfPoint2, cross2yOfPoint2, cross2zOfPoint2, 0.0);
+			
+			crossPoint = cross(cross1, cross2);
+			
+			normalsArray.push(crossPoint);
+			
+			// Third point
+			let cross1xOfPoint3 = Math.pow(a, u1) * Math.cos(j * u1) * (-r * Math.sin(v2));
+			let cross1yOfPoint3 = -Math.pow(a, u1) * Math.cos(j * u1) * (-r * Math.sin(v2));
+			let cross1zOfPoint3 = -c * Math.pow(a, u1) * k * (r * Math.cos(v2));
+			
+			let cross2xOfPoint3 = (R + r * Math.cos(v2)) * (Math.pow(a, u1) * Math.log(a) * Math.cos(j * u1) + Math.pow(a, u1) * (-j * Math.sin(j * u1)));
+			let cross2yOfPoint3 = (R + r * Math.cos(v2)) * (-Math.pow(a, u1) * Math.log(a) * Math.sin(j * u1) - Math.pow(a, u1) * (j * Math.cos(j * u1)));
+			let cross2zOfPoint3 = -c * (b + r * Math.sin(v2)) * Math.pow(a, u1) * Math.log(a) * k;
+			
+			cross1 = vec4(cross1xOfPoint3, cross1yOfPoint3, cross1zOfPoint3, 0.0);
+			cross2 = vec4(cross2xOfPoint3, cross2yOfPoint3, cross2zOfPoint3, 0.0);
+			
+			crossPoint = cross(cross1, cross2);
+			
+			normalsArray.push(crossPoint);
+			
+			// Fourth point
+			let cross1xOfPoint4 = Math.pow(a, u2) * Math.cos(j * u2) * (-r * Math.sin(v2));
+			let cross1yOfPoint4 = -Math.pow(a, u2) * Math.cos(j * u2) * (-r * Math.sin(v2));
+			let cross1zOfPoint4 = -c * Math.pow(a, u2) * k * (r * Math.cos(v2));
+			
+			let cross2xOfPoint4 = (R + r * Math.cos(v2)) * (Math.pow(a, u2) * Math.log(a) * Math.cos(j * u2) + Math.pow(a, u2) * (-j * Math.sin(j * u2)));
+			let cross2yOfPoint4 = (R + r * Math.cos(v2)) * (-Math.pow(a, u2) * Math.log(a) * Math.sin(j * u2) - Math.pow(a, u2) * (j * Math.cos(j * u2)));
+			let cross2zOfPoint4 = -c * (b + r * Math.sin(v2)) * Math.pow(a, u2) * Math.log(a) * k;
+			
+			cross1 = vec4(cross1xOfPoint4, cross1yOfPoint4, cross1zOfPoint4, 0.0);
+			cross2 = vec4(cross2xOfPoint4, cross2yOfPoint4, cross2zOfPoint4, 0.0);
+			
+			crossPoint = cross(cross1, cross2);
+			
+			normalsArray.push(crossPoint);
 
         }
     }
@@ -263,21 +331,21 @@ window.onload = function init() {
 var render = function () {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-// render columns of data then rows
-    
-        for (var i = 0; i < pointsArray.length; i += 4) {
+	// render columns of data then rows
+	if (!shadingOption)
+	{
+		for (var i = 0; i < pointsArray.length; i += 4) {
 			gl.uniform4fv(vColor, flatten(yellow));
             gl.drawArrays(gl.LINE_LOOP, i, 4);  			
         }
-/*
-    for (let i = 0; i < nRows; i++) {
-
-        gl.drawArrays(gl.LINE_LOOP, i * nColumns, nColumns);
-    }
-    for (let i = 0; i < nColumns; i++) {
+	}
+    else
+	{
+		for (var i = 0; i < pointsArray.length; i += 4) {
+			gl.uniform4fv(vColor, flatten(yellow));
+            gl.drawArrays(gl.TRIANGLE_FAN, i, 4);  			
+        }
+	}
 		
-        gl.drawArrays(gl.LINE_LOOP, i * nRows + pointsArray.length / 2, nRows);
-    }*/
-
     requestAnimFrame(render);
 }
