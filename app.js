@@ -110,10 +110,10 @@ function calculateVertex(u, v)
 	return vec4(x, y, z, 1.0);
 }
 
-function calculateNormal(u, v)
+function calculateNormal(u, v, reverse)
 {
 	let firstVectorX = Math.pow(a, u) * Math.cos(j * u) * (-r * Math.sin(v));
-	let firstVectorY = -Math.pow(a, u) * Math.cos(j * u) * (-r * Math.sin(v));
+	let firstVectorY = -Math.pow(a, u) * Math.sin(j * u) * (-r * Math.sin(v));
 	let firstVectorZ = -c * Math.pow(a, u) * k * (r * Math.cos(v));
 			
 	let secondVectorX = (R + r * Math.cos(v)) * (Math.pow(a, u) * Math.log(a) * Math.cos(j * u) + Math.pow(a, u) * (-j * Math.sin(j * u)));
@@ -122,8 +122,12 @@ function calculateNormal(u, v)
 			
 	let firstVector = vec4(firstVectorX, firstVectorY, firstVectorZ, 0.0);
 	let secondVector = vec4(secondVectorX, secondVectorY, secondVectorZ, 0.0);
-			
-	let crossProduct = cross(firstVector, secondVector);
+		
+	let crossProduct;
+	if (reverse)
+		crossProduct = normalize(cross(secondVector, firstVector));
+	else
+		crossProduct = normalize(cross(firstVector, secondVector));
 	
 	return crossProduct;
 }
@@ -145,6 +149,11 @@ window.onload = function init() {
     for (let i = 0; i < nRows - 1; i++) {
 		let u1 = i * 2 * Math.PI / (nRows - 1);	
 		let u2 = (i + 1) * 2 * Math.PI / (nRows - 1);
+		
+		let reverse = false;
+		
+		if (i % 2 != 0)
+			reverse = true;
         
 		//v = i * Math.PI / (nRows - 1);
 
@@ -164,10 +173,10 @@ window.onload = function init() {
 			pointsArray.push(p4);
 			
 			// normal vector calculation
-			let firstPointNormal = calculateNormal(u1, v1);
-			let secondPointNormal = calculateNormal(u2, v1);
-			let thirdPointNormal = calculateNormal(u2, v2);
-			let fourthPointNormal = calculateNormal(u1, v2);
+			let firstPointNormal = calculateNormal(u1, v1, reverse);
+			let secondPointNormal = calculateNormal(u2, v1, reverse);
+			let thirdPointNormal = calculateNormal(u2, v2, reverse);
+			let fourthPointNormal = calculateNormal(u1, v2, reverse);
 			
 			normalsArray.push(firstPointNormal);
 			normalsArray.push(secondPointNormal);
