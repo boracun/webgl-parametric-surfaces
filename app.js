@@ -23,27 +23,29 @@ let thetaOutput;
 let phiOutput;
 let zoomOutput;
 
-var nRows = 40;
-var nColumns = 40;
+let nRows = 40;
+let nColumns = 40;
 
 // data for radial hat function: sin(Pi*r)/(Pi*r)
 
-var a = 1.2; // 1.1 <= a <= 1.3
-var b = 7; // 3 <= b <= 16
-var c = 1; // 1 <= c <= 2
-var j = 2; // 2 <= j <= 12
-var k = 1; // 0 <= k <= 3
-var l = 1; // 0 <= l <= 3
-var m = 0; // -3 <= m <= 3
-var R = 1.375; // 1 <= R <= 2
-var r = 1; // 1 <= r <= 2
+let a = 1.2; // 1.1 <= a <= 1.3
+let b = 7; // 3 <= b <= 16
+let c = 1; // 1 <= c <= 2
+let j = 2; // 2 <= j <= 12
+let k = 1; // 0 <= k <= 3
+let l = 1; // 0 <= l <= 3
+let m = 0; // -3 <= m <= 3
+let R = 1.375; // 1 <= R <= 2
+let r = 1; // 1 <= r <= 2
 //var u = 0; // 0 <= u <= 2*PI
 //var v = 0; // 0 <= v <= 2*PI
 
-var pointsArray = [];
-var normalsArray = [];      // TODO: Normals array needs to be calculated
+let pointsArray = [];
+let normalsArray = [];      // TODO: Normals array needs to be calculated
 const black = vec4(0.0, 0.0, 0.0, 1.0);
+const yellow = vec4(0.96, 0.933, 0.658, 1.0);
 const white = vec4(1.0, 1.0, 1.0, 1.0);
+var vColor;
 
 var canvas;
 var gl;
@@ -109,55 +111,44 @@ window.onload = function init() {
 
     gl.viewport(0, 0, canvas.width, canvas.height);
 
-    gl.clearColor(0.2, 0.2, 0.2, 1.0);
+    gl.clearColor(0.0, 0.223, 0.349, 1.0);
 
     // vertex array of data for nRows and nColumns of line strips
-    for (var i = 0; i < nRows - 1; i++) {
+    for (let i = 0; i < nRows - 1; i++) {
 		let u1 = i * 2 * Math.PI / (nRows - 1);	
 		let u2 = (i + 1) * 2 * Math.PI / (nRows - 1);
         
 		//v = i * Math.PI / (nRows - 1);
 
-        for (var index = 0; index < nColumns - 1; index++) {
+        for (let index = 0; index < nColumns - 1; index++) {
 			let v1 = index * 2 * Math.PI / (nColumns - 1);
 			let v2 = (index + 1) * 2 * Math.PI / (nColumns - 1);
 
 			// v1 u1
-			var x1 = (R + r * Math.cos(v1)) * (Math.pow(a, u1) * Math.cos(j * u1));
-			var y1 = (R + r * Math.cos(v1)) * (-Math.pow(a, u1) * Math.sin(j * u1));
-			var z1 = -c * (b + r * Math.sin(v1)) * Math.pow(a, u1) * k + 10;
+			let x1 = (R + r * Math.cos(v1)) * (Math.pow(a, u1) * Math.cos(j * u1));
+			let y1 = (R + r * Math.cos(v1)) * (-Math.pow(a, u1) * Math.sin(j * u1));
+			let z1 = -c * (b + r * Math.sin(v1)) * Math.pow(a, u1) * k + 10;
 			
 			// v1 u2
-			var x2 = (R + r * Math.cos(v1)) * (Math.pow(a, u2) * Math.cos(j * u2));
-			var y2 = (R + r * Math.cos(v1)) * (-Math.pow(a, u2) * Math.sin(j * u2));
-			var z2 = -c * (b + r * Math.sin(v1)) * Math.pow(a, u2) * k + 10;
+			let x2 = (R + r * Math.cos(v1)) * (Math.pow(a, u2) * Math.cos(j * u2));
+			let y2 = (R + r * Math.cos(v1)) * (-Math.pow(a, u2) * Math.sin(j * u2));
+			let z2 = -c * (b + r * Math.sin(v1)) * Math.pow(a, u2) * k + 10;
 			
 			// v2 u2
-			var x3 = (R + r * Math.cos(v2)) * (Math.pow(a, u2) * Math.cos(j * u2));
-			var y3 = (R + r * Math.cos(v2)) * (-Math.pow(a, u2) * Math.sin(j * u2));
-			var z3 = -c * (b + r * Math.sin(v2)) * Math.pow(a, u2) * k + 10;
+			let x3 = (R + r * Math.cos(v2)) * (Math.pow(a, u2) * Math.cos(j * u2));
+			let y3 = (R + r * Math.cos(v2)) * (-Math.pow(a, u2) * Math.sin(j * u2));
+			let z3 = -c * (b + r * Math.sin(v2)) * Math.pow(a, u2) * k + 10;
 			
 			// v2 u1
-			var x4 = (R + r * Math.cos(v2)) * (Math.pow(a, u1) * Math.cos(j * u1));
-			var y4 = (R + r * Math.cos(v2)) * (-Math.pow(a, u1) * Math.sin(j * u1));
-			var z4 = -c * (b + r * Math.sin(v2)) * Math.pow(a, u1) * k + 10;
+			let x4 = (R + r * Math.cos(v2)) * (Math.pow(a, u1) * Math.cos(j * u1));
+			let y4 = (R + r * Math.cos(v2)) * (-Math.pow(a, u1) * Math.sin(j * u1));
+			let z4 = -c * (b + r * Math.sin(v2)) * Math.pow(a, u1) * k + 10;
 			
 			pointsArray.push(vec4(x1, y1, z1, 1.0)); // v1 u1
 			pointsArray.push(vec4(x2, y2, z2, 1.0)); // v1 u2
 			pointsArray.push(vec4(x3, y3, z3, 1.0)); // v2 u2
 			pointsArray.push(vec4(x4, y4, z4, 1.0)); // v2 u1
-			
-			/*
-			console.log("v and u: ", v1, u1); // v1 u1
-			console.log("point 1: ", vec4(x1, y1, z1, 1.0));
-			console.log("v and u: ", v1, u2);
-			console.log("point 2: ", vec4(x3, y3, z3, 1.0)); // v1 u2
-			console.log("v and u: ", v2, u2);
-			console.log("point 3: ", vec4(x2, y2, z2, 1.0)); // v2 u2
-			console.log("v and u: ", v2, u1);
-			console.log("point 4: ", vec4(x4, y4, z4, 1.0)); // v2 u1*/
-			
-			
+
         }
     }
 
@@ -183,6 +174,7 @@ window.onload = function init() {
     gl.vertexAttribPointer(vNormal, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vNormal);
 
+	vColor = gl.getUniformLocation(program, "vColor");
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
     projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
     normalMatrixLoc = gl.getUniformLocation(program, "normalMatrix");
@@ -274,7 +266,8 @@ var render = function () {
 // render columns of data then rows
     
         for (var i = 0; i < pointsArray.length; i += 4) {
-            gl.drawArrays(gl.LINE_LOOP, i, 4);  
+			gl.uniform4fv(vColor, flatten(yellow));
+            gl.drawArrays(gl.LINE_LOOP, i, 4);  			
         }
 /*
     for (let i = 0; i < nRows; i++) {
