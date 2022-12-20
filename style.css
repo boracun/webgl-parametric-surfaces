@@ -2,14 +2,15 @@ body {
     margin: 0;
     user-select: none;
     font-family: 'Poppins', sans-serif;
+	display: flex;
 }
 
 #gl-canvas {
     display: inline-block;
 }
 
-.button-list {
-    display: inline-block;
+.list {
+
     vertical-align: top;
 }
 

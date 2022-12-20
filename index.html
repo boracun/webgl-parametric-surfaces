@@ -160,29 +160,44 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400&family=Poppins:wght@300&display=swap" rel="stylesheet">
 </head>
-<body>
-    <canvas id="gl-canvas" width="512" height="512">
-        Oops ... your browser doesn't support the HTML5 canvas element
-    </canvas>
-
-    <div id="button-list" class="button-list">
-        <button id="increase-theta-button" class="button">Rotate the Camera CCW</button>
-        <button id="decrease-theta-button" class="button">Rotate the Camera CW</button>
-        <button id="increase-phi-button" class="button">Rotate the Camera Lower</button>
-        <button id="decrease-phi-button" class="button">Rotate the Camera Upper</button>
-        <br>
-        <button id="zoom-in-button" class="button">Zoom In</button>
-        <button id="zoom-out-button" class="button">Zoom Out</button>
-        <br>
-        <button id="wireframe-button" class="button">Render as Wireframe</button>
-        <button id="per-vertex-button" class="button">Render with Per Vertex Shading</button>
-        <button id="per-fragment-button" class="button">Render with Per Fragment Shading</button>
+<body>	
+    <div id="list" class="button-list">
+		<button id="increase-theta-button" class="button">Rotate the Camera CCW</button>
+		<div id="theta-output" class="button">The theta angle: 0 degrees</div>
+		<button id="decrease-theta-button" class="button">Rotate the Camera CW</button>
+		<button id="increase-phi-button" class="button">Rotate the Camera Lower</button>
+		<button id="decrease-phi-button" class="button">Rotate the Camera Upper</button>
+		<br>
+		<button id="zoom-in-button" class="button">Zoom In</button>
+		<button id="zoom-out-button" class="button">Zoom Out</button>
+		<br>
+		<button id="wireframe-button" class="button">Render as Wireframe</button>
+		<button id="per-vertex-button" class="button">Render with Per Vertex Shading</button>
+		<button id="per-fragment-button" class="button">Render with Per Fragment Shading</button>
     </div>
-
-    <div id="output-list" class="button-list">
+	
+	<div id="output-list" class="button-list">
         <p id="theta-output">The theta angle: 0 degrees</p>
         <p id="phi-output">The phi angle: 90 degrees</p>
         <p id="distance-output">The zoom amount: 0</p>
+    </div>
+	
+	<canvas id="gl-canvas" width="512" height="512">
+        Oops ... your browser doesn't support the HTML5 canvas element
+    </canvas>
+	
+		<div id="list" class="slider-list">
+        <label for="x-rotation-number">Degrees of rotation about x-axis [-180, 180]: </label>
+        <input type="number" id="x-rotation-number" min="-180" max="180" value="0">
+        <input type="range" id="x-rotation-range" min="-180" max="180" value="0">
+
+        <label for="y-rotation-number">Degrees of rotation about y-axis [-180, 180]: </label>
+        <input type="number" id="y-rotation-number" min="-180" max="180" value="0">
+        <input type="range" id="y-rotation-range" min="-180" max="180" value="0">
+
+        <label for="z-rotation-number">Degrees of rotation about z-axis [-180, 180]: </label>
+        <input type="number" id="z-rotation-number" min="-180" max="180" value="0">
+        <input type="range" id="z-rotation-range" min="-180" max="180" value="0">
     </div>
 </body>
 </html>

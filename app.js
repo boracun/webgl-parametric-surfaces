@@ -37,8 +37,6 @@ let l = 1; // 0 <= l <= 3
 let m = 0; // -3 <= m <= 3
 let R = 1.375; // 1 <= R <= 2
 let r = 1; // 1 <= r <= 2
-//var u = 0; // 0 <= u <= 2*PI
-//var v = 0; // 0 <= v <= 2*PI
 
 let pointsArray = [];
 let normalsArray = [];      // TODO: Normals array needs to be calculated
@@ -147,9 +145,6 @@ window.onload = function init() {
 		let u1 = i * 2 * Math.PI / (nRows - 1);	
 		let u2 = (i + 1) * 2 * Math.PI / (nRows - 1);
 				
-        
-		//v = i * Math.PI / (nRows - 1);
-
         for (let index = 0; index < nColumns - 1; index++) {
 			let v1 = index * 2 * Math.PI / (nColumns - 1);
 			let v2 = (index + 1) * 2 * Math.PI / (nColumns - 1);
@@ -306,7 +301,7 @@ var render = function () {
 		
 		for (var i = 0; i < pointsArray.length; i += 2) {
 			gl.uniform4fv(vColor, flatten(black));
-			gl.drawArrays(gl.LINES, i, 2);
+			gl.drawArrays(gl.LINE_LOOP, i, 2);
 		}
 	}
 		
