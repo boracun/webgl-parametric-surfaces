@@ -101,6 +101,20 @@ function updateProjection() {
     gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
 }
 
+function calculateVertex(u, v)
+{
+	let x = (R + r * Math.cos(v)) * (Math.pow(a, u) * Math.cos(j * u));
+	let y = (R + r * Math.cos(v)) * (-Math.pow(a, u) * Math.sin(j * u));
+	let z = -c * (b + r * Math.sin(v)) * Math.pow(a, u) * k + 10;
+	
+	return vec4(x, y, z, 1.0);
+}
+
+function calculateNormal()
+{
+	
+}
+
 window.onload = function init() {
     canvas = document.getElementById("gl-canvas");
 
@@ -125,33 +139,18 @@ window.onload = function init() {
 			let v1 = index * 2 * Math.PI / (nColumns - 1);
 			let v2 = (index + 1) * 2 * Math.PI / (nColumns - 1);
 
-
 			// vertex calculation
 			
 			// v1 u1
-			let x1 = (R + r * Math.cos(v1)) * (Math.pow(a, u1) * Math.cos(j * u1));
-			let y1 = (R + r * Math.cos(v1)) * (-Math.pow(a, u1) * Math.sin(j * u1));
-			let z1 = -c * (b + r * Math.sin(v1)) * Math.pow(a, u1) * k + 10;
+			let p1 = calculateVertex(u1, v1);
+			let p2 = calculateVertex(u2, v1);
+			let p3 = calculateVertex(u2, v2);
+			let p4 = calculateVertex(u1, v2);
 			
-			// v1 u2
-			let x2 = (R + r * Math.cos(v1)) * (Math.pow(a, u2) * Math.cos(j * u2));
-			let y2 = (R + r * Math.cos(v1)) * (-Math.pow(a, u2) * Math.sin(j * u2));
-			let z2 = -c * (b + r * Math.sin(v1)) * Math.pow(a, u2) * k + 10;
-			
-			// v2 u2
-			let x3 = (R + r * Math.cos(v2)) * (Math.pow(a, u2) * Math.cos(j * u2));
-			let y3 = (R + r * Math.cos(v2)) * (-Math.pow(a, u2) * Math.sin(j * u2));
-			let z3 = -c * (b + r * Math.sin(v2)) * Math.pow(a, u2) * k + 10;
-			
-			// v2 u1
-			let x4 = (R + r * Math.cos(v2)) * (Math.pow(a, u1) * Math.cos(j * u1));
-			let y4 = (R + r * Math.cos(v2)) * (-Math.pow(a, u1) * Math.sin(j * u1));
-			let z4 = -c * (b + r * Math.sin(v2)) * Math.pow(a, u1) * k + 10;
-			
-			pointsArray.push(vec4(x1, y1, z1, 1.0)); // v1 u1
-			pointsArray.push(vec4(x2, y2, z2, 1.0)); // v1 u2
-			pointsArray.push(vec4(x3, y3, z3, 1.0)); // v2 u2
-			pointsArray.push(vec4(x4, y4, z4, 1.0)); // v2 u1
+			pointsArray.push(p1);
+			pointsArray.push(p2);
+			pointsArray.push(p3);
+			pointsArray.push(p4);
 			
 			// normal vector calculation
 			// First point
