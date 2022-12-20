@@ -110,9 +110,22 @@ function calculateVertex(u, v)
 	return vec4(x, y, z, 1.0);
 }
 
-function calculateNormal()
+function calculateNormal(u, v)
 {
+	let firstVectorX = Math.pow(a, u) * Math.cos(j * u) * (-r * Math.sin(v));
+	let firstVectorY = -Math.pow(a, u) * Math.cos(j * u) * (-r * Math.sin(v));
+	let firstVectorZ = -c * Math.pow(a, u) * k * (r * Math.cos(v));
+			
+	let secondVectorX = (R + r * Math.cos(v)) * (Math.pow(a, u) * Math.log(a) * Math.cos(j * u) + Math.pow(a, u) * (-j * Math.sin(j * u)));
+	let secondVectorY = (R + r * Math.cos(v)) * (-Math.pow(a, u) * Math.log(a) * Math.sin(j * u) - Math.pow(a, u) * (j * Math.cos(j * u)));
+	let secondVectorZ = -c * (b + r * Math.sin(v)) * Math.pow(a, u) * Math.log(a) * k;
+			
+	let firstVector = vec4(firstVectorX, firstVectorY, firstVectorZ, 0.0);
+	let secondVector = vec4(secondVectorX, secondVectorY, secondVectorZ, 0.0);
+			
+	let crossProduct = cross(firstVector, secondVector);
 	
+	return crossProduct;
 }
 
 window.onload = function init() {
@@ -140,8 +153,6 @@ window.onload = function init() {
 			let v2 = (index + 1) * 2 * Math.PI / (nColumns - 1);
 
 			// vertex calculation
-			
-			// v1 u1
 			let p1 = calculateVertex(u1, v1);
 			let p2 = calculateVertex(u2, v1);
 			let p3 = calculateVertex(u2, v2);
@@ -153,70 +164,15 @@ window.onload = function init() {
 			pointsArray.push(p4);
 			
 			// normal vector calculation
-			// First point
-			let cross1xOfPoint1 = Math.pow(a, u1) * Math.cos(j * u1) * (-r * Math.sin(v1));
-			let cross1yOfPoint1 = -Math.pow(a, u1) * Math.cos(j * u1) * (-r * Math.sin(v1));
-			let cross1zOfPoint1 = -c * Math.pow(a, u1) * k * (r * Math.cos(v1));
+			let firstPointNormal = calculateNormal(u1, v1);
+			let secondPointNormal = calculateNormal(u2, v1);
+			let thirdPointNormal = calculateNormal(u2, v2);
+			let fourthPointNormal = calculateNormal(u1, v2);
 			
-			let cross2xOfPoint1 = (R + r * Math.cos(v1)) * (Math.pow(a, u1) * Math.log(a) * Math.cos(j * u1) + Math.pow(a, u1) * (-j * Math.sin(j * u1)));
-			let cross2yOfPoint1 = (R + r * Math.cos(v1)) * (-Math.pow(a, u1) * Math.log(a) * Math.sin(j * u1) - Math.pow(a, u1) * (j * Math.cos(j * u1)));
-			let cross2zOfPoint1 = -c * (b + r * Math.sin(v1)) * Math.pow(a, u1) * Math.log(a) * k;
-			
-			let cross1 = vec4(cross1xOfPoint1, cross1yOfPoint1, cross1zOfPoint1, 0.0);
-			let cross2 = vec4(cross2xOfPoint1, cross2yOfPoint1, cross2zOfPoint1, 0.0);
-			
-			let crossPoint = cross(cross1, cross2);
-			
-			normalsArray.push(crossPoint);
-			
-			//Second point
-			let cross1xOfPoint2 = Math.pow(a, u2) * Math.cos(j * u2) * (-r * Math.sin(v1));
-			let cross1yOfPoint2 = -Math.pow(a, u2) * Math.cos(j * u2) * (-r * Math.sin(v1));
-			let cross1zOfPoint2 = -c * Math.pow(a, u2) * k * (r * Math.cos(v1));
-			
-			let cross2xOfPoint2 = (R + r * Math.cos(v1)) * (Math.pow(a, u2) * Math.log(a) * Math.cos(j * u2) + Math.pow(a, u2) * (-j * Math.sin(j * u2)));
-			let cross2yOfPoint2 = (R + r * Math.cos(v1)) * (-Math.pow(a, u2) * Math.log(a) * Math.sin(j * u2) - Math.pow(a, u2) * (j * Math.cos(j * u2)));
-			let cross2zOfPoint2 = -c * (b + r * Math.sin(v1)) * Math.pow(a, u2) * Math.log(a) * k;
-			
-			cross1 = vec4(cross1xOfPoint2, cross1yOfPoint2, cross1zOfPoint2, 0.0);
-			cross2 = vec4(cross2xOfPoint2, cross2yOfPoint2, cross2zOfPoint2, 0.0);
-			
-			crossPoint = cross(cross1, cross2);
-			
-			normalsArray.push(crossPoint);
-			
-			// Third point
-			let cross1xOfPoint3 = Math.pow(a, u1) * Math.cos(j * u1) * (-r * Math.sin(v2));
-			let cross1yOfPoint3 = -Math.pow(a, u1) * Math.cos(j * u1) * (-r * Math.sin(v2));
-			let cross1zOfPoint3 = -c * Math.pow(a, u1) * k * (r * Math.cos(v2));
-			
-			let cross2xOfPoint3 = (R + r * Math.cos(v2)) * (Math.pow(a, u1) * Math.log(a) * Math.cos(j * u1) + Math.pow(a, u1) * (-j * Math.sin(j * u1)));
-			let cross2yOfPoint3 = (R + r * Math.cos(v2)) * (-Math.pow(a, u1) * Math.log(a) * Math.sin(j * u1) - Math.pow(a, u1) * (j * Math.cos(j * u1)));
-			let cross2zOfPoint3 = -c * (b + r * Math.sin(v2)) * Math.pow(a, u1) * Math.log(a) * k;
-			
-			cross1 = vec4(cross1xOfPoint3, cross1yOfPoint3, cross1zOfPoint3, 0.0);
-			cross2 = vec4(cross2xOfPoint3, cross2yOfPoint3, cross2zOfPoint3, 0.0);
-			
-			crossPoint = cross(cross1, cross2);
-			
-			normalsArray.push(crossPoint);
-			
-			// Fourth point
-			let cross1xOfPoint4 = Math.pow(a, u2) * Math.cos(j * u2) * (-r * Math.sin(v2));
-			let cross1yOfPoint4 = -Math.pow(a, u2) * Math.cos(j * u2) * (-r * Math.sin(v2));
-			let cross1zOfPoint4 = -c * Math.pow(a, u2) * k * (r * Math.cos(v2));
-			
-			let cross2xOfPoint4 = (R + r * Math.cos(v2)) * (Math.pow(a, u2) * Math.log(a) * Math.cos(j * u2) + Math.pow(a, u2) * (-j * Math.sin(j * u2)));
-			let cross2yOfPoint4 = (R + r * Math.cos(v2)) * (-Math.pow(a, u2) * Math.log(a) * Math.sin(j * u2) - Math.pow(a, u2) * (j * Math.cos(j * u2)));
-			let cross2zOfPoint4 = -c * (b + r * Math.sin(v2)) * Math.pow(a, u2) * Math.log(a) * k;
-			
-			cross1 = vec4(cross1xOfPoint4, cross1yOfPoint4, cross1zOfPoint4, 0.0);
-			cross2 = vec4(cross2xOfPoint4, cross2yOfPoint4, cross2zOfPoint4, 0.0);
-			
-			crossPoint = cross(cross1, cross2);
-			
-			normalsArray.push(crossPoint);
-
+			normalsArray.push(firstPointNormal);
+			normalsArray.push(secondPointNormal);
+			normalsArray.push(thirdPointNormal);
+			normalsArray.push(fourthPointNormal);
         }
     }
 
