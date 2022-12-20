@@ -51,7 +51,7 @@
                 else L = normalize(lightPosition.xyz - pos);
 
                 E = -normalize(pos);
-                vec3 N = normalize(vNormal.xyz);
+                N = normalize(normalMatrix*vNormal.xyz);
 
                 gl_Position = projectionMatrix * modelViewMatrix * vPosition;
                 
@@ -82,7 +82,7 @@
                 vec3 H = normalize(L + E);
 
                 // Transform vertex normal into eye coordinates
-                vec3 N = normalize(vNormal.xyz);
+                vec3 N = normalize(normalMatrix*vNormal.xyz);
 
                 // Compute terms in the illumination equation
                 vec4 ambient = ambientProduct;

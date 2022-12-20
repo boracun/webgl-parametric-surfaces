@@ -110,6 +110,11 @@ function calculateVertex(u, v)
 	return vec4(x, y, z, 1.0);
 }
 
+function leftTest(p1, p2, p3)
+{
+	let matrix = mat3(p1[0], p1[1], 1, p2[0], p2[1], 1, p3[0], p3[1], 1);
+}
+
 function calculateNormal(u, v, reverse)
 {
 	let firstVectorX = Math.pow(a, u) * Math.cos(j * u) * (-r * Math.sin(v));
