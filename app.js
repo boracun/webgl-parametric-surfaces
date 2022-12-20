@@ -110,12 +110,7 @@ function calculateVertex(u, v)
 	return vec4(x, y, z, 1.0);
 }
 
-function leftTest(p1, p2, p3)
-{
-	let matrix = mat3(p1[0], p1[1], 1, p2[0], p2[1], 1, p3[0], p3[1], 1);
-}
-
-function calculateNormal(u, v, reverse)
+function calculateNormal(u, v)
 {
 	let firstVectorX = Math.pow(a, u) * Math.cos(j * u) * (-r * Math.sin(v));
 	let firstVectorY = -Math.pow(a, u) * Math.sin(j * u) * (-r * Math.sin(v));
@@ -129,10 +124,7 @@ function calculateNormal(u, v, reverse)
 	let secondVector = vec4(secondVectorX, secondVectorY, secondVectorZ, 0.0);
 		
 	let crossProduct;
-	if (reverse)
-		crossProduct = normalize(cross(secondVector, firstVector));
-	else
-		crossProduct = normalize(cross(firstVector, secondVector));
+	crossProduct = vec4(normalize(cross(firstVector, secondVector)));
 	
 	return crossProduct;
 }
@@ -154,11 +146,7 @@ window.onload = function init() {
     for (let i = 0; i < nRows - 1; i++) {
 		let u1 = i * 2 * Math.PI / (nRows - 1);	
 		let u2 = (i + 1) * 2 * Math.PI / (nRows - 1);
-		
-		let reverse = false;
-		
-		if (i % 2 != 0)
-			reverse = true;
+				
         
 		//v = i * Math.PI / (nRows - 1);
 
@@ -178,10 +166,10 @@ window.onload = function init() {
 			pointsArray.push(p4);
 			
 			// normal vector calculation
-			let firstPointNormal = calculateNormal(u1, v1, reverse);
-			let secondPointNormal = calculateNormal(u2, v1, reverse);
-			let thirdPointNormal = calculateNormal(u2, v2, reverse);
-			let fourthPointNormal = calculateNormal(u1, v2, reverse);
+			let firstPointNormal = calculateNormal(u1, v1);
+			let secondPointNormal = calculateNormal(u2, v1);
+			let thirdPointNormal = calculateNormal(u2, v2);
+			let fourthPointNormal = calculateNormal(u1, v2);
 			
 			normalsArray.push(firstPointNormal);
 			normalsArray.push(secondPointNormal);
@@ -315,6 +303,11 @@ var render = function () {
 			gl.uniform4fv(vColor, flatten(yellow));
             gl.drawArrays(gl.TRIANGLE_FAN, i, 4);  			
         }
+		
+		for (var i = 0; i < pointsArray.length; i += 2) {
+			gl.uniform4fv(vColor, flatten(black));
+			gl.drawArrays(gl.LINES, i, 2);
+		}
 	}
 		
     requestAnimFrame(render);
