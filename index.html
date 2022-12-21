@@ -143,6 +143,9 @@
                     texcoords = (v_normal.y > 0.0)? v_objCoords.zx : v_objCoords.xz;
                 }
 
+                texcoords.x /= 10.0;
+                texcoords.y /= 10.0;
+
                 vec4 color = texture2D(texture, texcoords + vec2(0.5));  //base color
                 gl_FragColor = vec4(color.rgb, 1.0);
             }
