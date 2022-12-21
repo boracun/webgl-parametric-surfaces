@@ -41,7 +41,7 @@ let r = 1; // 1 <= r <= 2
 //var v = 0; // 0 <= v <= 2*PI
 
 let pointsArray = [];
-let normalsArray = [];      // TODO: Normals array needs to be calculated
+let normalsArray = [];
 const black = vec4(0.0, 0.0, 0.0, 1.0);
 const yellow = vec4(0.96, 0.933, 0.658, 1.0);
 const white = vec4(1.0, 1.0, 1.0, 1.0);
@@ -231,6 +231,7 @@ window.onload = function init() {
     gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"), flatten(specularProduct));
     gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition));
     gl.uniform1f(gl.getUniformLocation(program, "shininess"), materialShininess);
+    gl.uniform1f(gl.getUniformLocation(program, "shadingOption"), shadingOption);
 
     document.getElementById("increase-theta-button").onclick = function () {
         theta += DEGREE_CHANGE_AMOUNT;
@@ -309,7 +310,7 @@ var render = function () {
 	{
 		for (var i = 0; i < pointsArray.length; i += 4) {
 			gl.uniform4fv(vColor, flatten(yellow));
-            gl.drawArrays(gl.TRIANGLE_FAN, i, 4);
+            gl.drawArrays(gl.LINE_LOOP, i, 4);
         }
 	}
     else
