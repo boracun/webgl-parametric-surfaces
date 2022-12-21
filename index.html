@@ -24,6 +24,8 @@
         uniform vec4 lightPosition;
         uniform float shininess;
         uniform mat3 normalMatrix;
+
+        varying float vertexKd;
         // ===== Needed for per vertex shading =====
 
         // ===== Needed for per fragment shading =====
@@ -92,8 +94,7 @@
                 // Compute terms in the illumination equation
                 vec4 ambient = ambientProduct;
 
-                float Kd = max(dot(L, N), 0.0);
-                vec4 diffuse = Kd*diffuseProduct;
+                vertexKd = max(dot(L, N), 0.0);
 
                 float Ks = pow(max(dot(N, H), 0.0), shininess);
                 vec4 specular = Ks * specularProduct;
@@ -103,7 +104,7 @@
                 }
 
                 gl_Position = projectionMatrix * modelViewMatrix * vPosition;
-                fColor = ambient + diffuse + specular;
+                fColor = ambient + specular;    // diffuse is added in the fragment shader using vertexKd and textureColor
                 fColor.a = 1.0;
             }
         }
@@ -118,6 +119,7 @@
         varying vec4 fColor;
         varying vec4 fNormal;
         varying vec4 fPosition;
+        varying float vertexKd;
 
         varying vec3 N, L, E;
         varying vec4 ambientProductFragment, diffuseProductFragment, specularProductFragment;
@@ -153,7 +155,7 @@
             // Per vertex shading
             else if(sOption == 1.0)
             {
-                gl_FragColor = fColor;
+                gl_FragColor = fColor + vertexKd * textureColor;
             }
 
             // Per fragment shading
