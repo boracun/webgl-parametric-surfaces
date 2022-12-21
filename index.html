@@ -111,39 +111,40 @@
 
     <script id="fragment-shader" type="x-shader/x-fragment">
         precision mediump float;
+        
+        uniform sampler2D texture;
 
         varying float sOption;
         varying vec4 fColor;
+        varying vec4 varyingNormal;
+        varying vec4 varyingPosition;
 
         varying vec3 N, L, E;
         varying vec4 ambientProductFragment, diffuseProductFragment, specularProductFragment;
         varying float shininessFragment;
-
-        uniform sampler2D texture;
-        varying vec4 varyingNormal;
-        varying vec4 varyingPosition;
 
         void main()
         {
             // Default Wireframe
             if(sOption == 0.0)
             {
-                vec2 texcoords;
+                vec2 textureCoordinates;
 
-                if ( (abs(varyingNormal.x) > abs(varyingNormal.y)) && (abs(varyingNormal.x) > abs(varyingNormal.z)) ) {
-                    texcoords = (varyingNormal.x > 0.0)? varyingPosition.yz : varyingPosition.zy;
+                if ((abs(varyingNormal.x) > abs(varyingNormal.y)) && (abs(varyingNormal.x) > abs(varyingNormal.z))) {
+                    textureCoordinates = (varyingNormal.x > 0.0) ? varyingPosition.yz : varyingPosition.zy;
                 }
-                else if ( (abs(varyingNormal.z) > abs(varyingNormal.x)) && (abs(varyingNormal.z) > abs(varyingNormal.y)) ) {
-                    texcoords = (varyingNormal.z > 0.0) ? varyingPosition.xy : varyingPosition.yx;
+                else if ((abs(varyingNormal.z) > abs(varyingNormal.x)) && (abs(varyingNormal.z) > abs(varyingNormal.y))) {
+                    textureCoordinates = (varyingNormal.z > 0.0) ? varyingPosition.xy : varyingPosition.yx;
                 }
                 else {
-                    texcoords = (varyingNormal.y > 0.0)? varyingPosition.zx : varyingPosition.xz;
+                    textureCoordinates = (varyingNormal.y > 0.0) ? varyingPosition.zx : varyingPosition.xz;
                 }
 
-                texcoords.x /= 10.0;
-                texcoords.y /= 10.0;
+                // Scale the texture coordinates so that the texture image appears larger or smaller
+                textureCoordinates.x /= 10.0;
+                textureCoordinates.y /= 10.0;
 
-                vec4 color = texture2D(texture, texcoords + vec2(0.5));  //base color
+                vec4 color = texture2D(texture, textureCoordinates);  //base color
                 gl_FragColor = vec4(color.rgb, 1.0);
             }
 
