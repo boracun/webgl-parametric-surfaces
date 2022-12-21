@@ -1,6 +1,6 @@
 // Constants
 const DEGREE_CHANGE_AMOUNT = 15.0;
-const ZOOM_CHANGE_AMOUNT = 2;
+const ZOOM_CHANGE_AMOUNT = 1;
 const INITIAL_PROJECTION_CONSTANT = 10.0;
 
 const DEFAULT = 0
@@ -28,17 +28,32 @@ let nColumns = 40;
 
 // data for radial hat function: sin(Pi*r)/(Pi*r)
 
-let a = 1.2; // 1.1 <= a <= 1.3
-let b = 7; // 3 <= b <= 16
+let a = 1.1; // 1.1 <= a <= 1.3
+let aRange = 1.3 - 1.1;
+
+let b = 3; // 3 <= b <= 16
+let bRange = 16 - 3;
+
 let c = 1; // 1 <= c <= 2
+let cRange = 2 - 1;
+
 let j = 2; // 2 <= j <= 12
-let k = 1; // 0 <= k <= 3
-let l = 1; // 0 <= l <= 3
-let m = 0; // -3 <= m <= 3
-let R = 1.375; // 1 <= R <= 2
+letjRange = 12 - 2;
+
+let k = 0; // 0 <= k <= 3
+let kRange = 3 - 1;
+
+let l = 0; // 0 <= l <= 3
+let lRange = 3 - 0;
+
+let m = -3; // -3 <= m <= 3
+let mRange = 3 - (-3);
+
+let R = 1; // 1 <= R <= 2
+let RRange = 2 - 1;
+
 let r = 1; // 1 <= r <= 2
-//var u = 0; // 0 <= u <= 2*PI
-//var v = 0; // 0 <= v <= 2*PI
+let rRange = 2 - 1;
 
 let pointsArray = [];
 let normalsArray = [];
@@ -46,6 +61,7 @@ const black = vec4(0.0, 0.0, 0.0, 1.0);
 const yellow = vec4(0.96, 0.933, 0.658, 1.0);
 const white = vec4(1.0, 1.0, 1.0, 1.0);
 var vColor;
+let sliderDivide = 5;
 
 var canvas;
 var gl;
@@ -53,7 +69,7 @@ var gl;
 var near = -100;
 var far = 100;
 var radius = 1.0;
-var theta = 0.0;    // Theta determines the degree between: x-axis - the center of the sphere - the camera position
+var theta = 90.0;    // Theta determines the degree between: x-axis - the center of the sphere - the camera position
 var phi = 90.0;     // Phi determines the degree between: the top of the sphere - the center of the sphere - the camera position
 
 var left = -INITIAL_PROJECTION_CONSTANT;
@@ -72,6 +88,20 @@ const at = vec3(0.0, 0.0, 0.0);
 const up = vec3(0.0, 1.0, 0.0);
 
 let shadingOption = DEFAULT;
+
+// variables in init
+var program;
+var vBuffer;
+var vPosition;
+var nBuffer;
+var vNormal;
+
+function resetScene()
+{
+	pointsArray = [];
+	normalsArray = [];
+	sendData();
+}
 
 function updateCameraPosition() {
     eye = vec3(
@@ -101,34 +131,6 @@ function updateProjection() {
     gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
 }
 
-function calculateVertex(u, v)
-{
-	let x = (R + r * Math.cos(v)) * (Math.pow(a, u) * Math.cos(j * u));
-	let y = (R + r * Math.cos(v)) * (-Math.pow(a, u) * Math.sin(j * u));
-	let z = -c * (b + r * Math.sin(v)) * Math.pow(a, u) * k + 15;
-	
-	return vec4(x, y, z, 1.0);
-}
-
-function calculateNormal(u, v)
-{
-	let firstVectorX = Math.pow(a, u) * Math.cos(j * u) * (-r * Math.sin(v));
-	let firstVectorY = -Math.pow(a, u) * Math.sin(j * u) * (-r * Math.sin(v));
-	let firstVectorZ = -c * Math.pow(a, u) * k * (r * Math.cos(v));
-			
-	let secondVectorX = (R + r * Math.cos(v)) * (Math.pow(a, u) * Math.log(a) * Math.cos(j * u) + Math.pow(a, u) * (-j * Math.sin(j * u)));
-	let secondVectorY = (R + r * Math.cos(v)) * (-Math.pow(a, u) * Math.log(a) * Math.sin(j * u) - Math.pow(a, u) * (j * Math.cos(j * u)));
-	let secondVectorZ = -c * (b + r * Math.sin(v)) * Math.pow(a, u) * Math.log(a) * k;
-			
-	let firstVector = vec4(firstVectorX, firstVectorY, firstVectorZ, 0.0);
-	let secondVector = vec4(secondVectorX, secondVectorY, secondVectorZ, 0.0);
-		
-	let crossProduct;
-	crossProduct = vec4(normalize(cross(firstVector, secondVector)));
-	
-	return crossProduct;
-}
-
 function applyTexture() {
     let mosaicImage = new Image();
     mosaicImage.src = "mosaic.jpg";
@@ -138,28 +140,13 @@ function applyTexture() {
     };
 }
 
-window.onload = function init() {
-    canvas = document.getElementById("gl-canvas");
-
-    gl = WebGLUtils.setupWebGL(canvas);
-    if (!gl) {
-        alert("WebGL isn't available");
-    }
-
-    gl.viewport(0, 0, canvas.width, canvas.height);
-
-    gl.clearColor(0.0, 0.223, 0.349, 1.0);
-    gl.enable(gl.DEPTH_TEST);
-    gl.pixelStorei( gl.UNPACK_FLIP_Y_WEBGL, 1 );
-
-    // vertex array of data for nRows and nColumns of line strips
+function calculateVertexAndNormals()
+{
+	// vertex array of data for nRows and nColumns of line strips
     for (let i = 0; i < nRows - 1; i++) {
 		let u1 = i * 2 * Math.PI / (nRows - 1);	
 		let u2 = (i + 1) * 2 * Math.PI / (nRows - 1);
 				
-        
-		//v = i * Math.PI / (nRows - 1);
-
         for (let index = 0; index < nColumns - 1; index++) {
 			let v1 = index * 2 * Math.PI / (nColumns - 1);
 			let v2 = (index + 1) * 2 * Math.PI / (nColumns - 1);
@@ -187,30 +174,25 @@ window.onload = function init() {
 			normalsArray.push(fourthPointNormal);
         }
     }
+}
 
-    //
-    //  Load shaders and initialize attribute buffers
-    //
-    var program = initShaders(gl, "vertex-shader", "fragment-shader");
-    gl.useProgram(program);
-
-    gl.uniform1i(gl.getUniformLocation(program, "texture"), 0);
-    let texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-
-    var vBuffer = gl.createBuffer();
+function sendData()
+{
+	calculateVertexAndNormals();
+	
+	vBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(pointsArray), gl.STATIC_DRAW);
 
-    var vPosition = gl.getAttribLocation(program, "vPosition");
+    vPosition = gl.getAttribLocation(program, "vPosition");
     gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
 
-    var nBuffer = gl.createBuffer();
+    nBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, nBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(normalsArray), gl.STATIC_DRAW);
 
-    var vNormal = gl.getAttribLocation(program, "vNormal");
+    vNormal = gl.getAttribLocation(program, "vNormal");
     gl.vertexAttribPointer(vNormal, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vNormal);
 
@@ -218,6 +200,61 @@ window.onload = function init() {
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
     projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
     normalMatrixLoc = gl.getUniformLocation(program, "normalMatrix");
+}
+
+function calculateVertex(u, v)
+{
+	let x = (R + r * Math.cos(v)) * (Math.pow(a, u) * Math.cos(j * u));
+	let y = (R + r * Math.cos(v)) * (-Math.pow(a, u) * Math.sin(j * u));
+	let z = -c * (b + r * Math.sin(v)) * Math.pow(a, u) * k;
+	
+	return vec4(x, y, z, 1.0);
+}
+
+function calculateNormal(u, v)
+{
+	let firstVectorX = Math.pow(a, u) * Math.cos(j * u) * (-r * Math.sin(v));
+	let firstVectorY = -Math.pow(a, u) * Math.sin(j * u) * (-r * Math.sin(v));
+	let firstVectorZ = -c * Math.pow(a, u) * k * (r * Math.cos(v));
+			
+	let secondVectorX = (R + r * Math.cos(v)) * (Math.pow(a, u) * Math.log(a) * Math.cos(j * u) + Math.pow(a, u) * (-j * Math.sin(j * u)));
+	let secondVectorY = (R + r * Math.cos(v)) * (-Math.pow(a, u) * Math.log(a) * Math.sin(j * u) - Math.pow(a, u) * (j * Math.cos(j * u)));
+	let secondVectorZ = -c * (b + r * Math.sin(v)) * Math.pow(a, u) * Math.log(a) * k;
+			
+	let firstVector = vec4(firstVectorX, firstVectorY, firstVectorZ, 0.0);
+	let secondVector = vec4(secondVectorX, secondVectorY, secondVectorZ, 0.0);
+	//console.log(firstVector, secondVector);
+	let crossProduct;
+	crossProduct = vec4(normalize(cross(firstVector, secondVector)));
+	
+	return crossProduct;
+}
+
+window.onload = function init() {
+    canvas = document.getElementById("gl-canvas");
+
+    gl = WebGLUtils.setupWebGL(canvas);
+    if (!gl) {
+        alert("WebGL isn't available");
+    }
+
+    gl.viewport(0, 0, canvas.width, canvas.height);
+
+    gl.clearColor(0.0, 0.223, 0.349, 1.0);
+    gl.enable(gl.DEPTH_TEST);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+
+    //
+    //  Load shaders and initialize attribute buffers
+    //
+    program = initShaders(gl, "vertex-shader", "fragment-shader");
+    gl.useProgram(program);
+    
+    gl.uniform1i(gl.getUniformLocation(program, "texture"), 0);
+    let texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+
+	  sendData();
 
     updateCameraPosition();     // Sets the model-view matrix
     updateProjection();         // Sets the projection matrix
@@ -293,7 +330,52 @@ window.onload = function init() {
         shadingOption = PER_FRAGMENT_OPTION;
         gl.uniform1f(gl.getUniformLocation(program, "shadingOption"), shadingOption);
     };
-
+	
+	document.getElementById("number-a").onchange = function () {
+        a = document.getElementById("number-a").value;
+		resetScene();
+    };
+	
+	document.getElementById("number-b").onchange = function () {
+        b = document.getElementById("number-b").value;
+		resetScene();
+    };
+	
+	document.getElementById("number-c").onchange = function () {
+        c = document.getElementById("number-c").value;
+		resetScene();
+    };
+	
+	document.getElementById("number-j").onchange = function () {
+        j = document.getElementById("number-j").value;
+		resetScene();
+    };
+	
+	document.getElementById("number-k").onchange = function () {
+        k = document.getElementById("number-k").value;
+		resetScene();
+    };
+	
+	document.getElementById("number-l").onchange = function () {
+        l = document.getElementById("number-l").value;
+		resetScene();
+    };
+	
+	document.getElementById("number-m").onchange = function () {
+        m = document.getElementById("number-m").value;
+		resetScene();
+    };
+	
+	document.getElementById("number-R").onchange = function () {
+        R = document.getElementById("number-R").value;
+		resetScene();
+    };
+	
+	document.getElementById("number-r").onchange = function () {
+        r = document.getElementById("number-r").value;
+		resetScene();
+    };
+	
     thetaOutput = document.getElementById("theta-output");
     phiOutput = document.getElementById("phi-output");
     zoomOutput = document.getElementById("distance-output");
@@ -322,7 +404,7 @@ var render = function () {
 		
 		for (var i = 0; i < pointsArray.length; i += 2) {
 			gl.uniform4fv(vColor, flatten(black));
-			gl.drawArrays(gl.LINES, i, 2);
+			gl.drawArrays(gl.LINE_LOOP, i, 2);
 		}
 	}
 		
