@@ -6,7 +6,10 @@
 
     <script id="vertex-shader" type="x-shader/x-vertex">
         attribute vec4 vPosition;
+        varying vec4 varyingPosition;
+
 		uniform vec4 vColor;
+        varying vec4 fColor;
 
         uniform mat4 modelViewMatrix;
         uniform mat4 projectionMatrix;
@@ -15,8 +18,7 @@
 
         // ===== Needed for per vertex shading =====
         attribute vec4 vNormal;
-
-        varying vec4 fColor;
+        varying vec4 varyingNormal;
 
         uniform vec4 ambientProduct, diffuseProduct, specularProduct;
         uniform vec4 lightPosition;
@@ -30,18 +32,13 @@
         varying float shininessFragment;
         // ===== Needed for per fragment shading =====
 
-        // ===== Needed for textures =====
-        varying vec4 v_normal;
-        varying vec4 v_objCoords;
-        // ===== Needed for textures =====
-
         void main()
         {
+            // Set the varying variables
 			fColor = vColor;
             sOption = shadingOption;
-
-            v_normal = vNormal;
-            v_objCoords = vPosition;
+            varyingNormal = vNormal;
+            varyingPosition = vPosition;
 
             // Default Wireframe
             if(shadingOption == 0.0)
@@ -62,7 +59,7 @@
                 N = normalize(normalMatrix*vNormal.xyz);
 
                 gl_Position = projectionMatrix * modelViewMatrix * vPosition;
-                
+
                 ambientProductFragment = ambientProduct;
                 diffuseProductFragment = diffuseProduct;
                 specularProductFragment = specularProduct;
@@ -104,7 +101,7 @@
                 if(dot(L, N) < 0.0) {
                     specular = vec4(0.0, 0.0, 0.0, 1.0);
                 }
-            
+
                 gl_Position = projectionMatrix * modelViewMatrix * vPosition;
                 fColor = ambient + diffuse + specular;
                 fColor.a = 1.0;
@@ -123,8 +120,8 @@
         varying float shininessFragment;
 
         uniform sampler2D texture;
-        varying vec4 v_normal;
-        varying vec4 v_objCoords;
+        varying vec4 varyingNormal;
+        varying vec4 varyingPosition;
 
         void main()
         {
@@ -133,14 +130,14 @@
             {
                 vec2 texcoords;
 
-                if ( (abs(v_normal.x) > abs(v_normal.y)) && (abs(v_normal.x) > abs(v_normal.z)) ) {
-                    texcoords = (v_normal.x > 0.0)? v_objCoords.yz : v_objCoords.zy;
+                if ( (abs(varyingNormal.x) > abs(varyingNormal.y)) && (abs(varyingNormal.x) > abs(varyingNormal.z)) ) {
+                    texcoords = (varyingNormal.x > 0.0)? varyingPosition.yz : varyingPosition.zy;
                 }
-                else if ( (abs(v_normal.z) > abs(v_normal.x)) && (abs(v_normal.z) > abs(v_normal.y)) ) {
-                    texcoords = (v_normal.z > 0.0) ? v_objCoords.xy : v_objCoords.yx;
+                else if ( (abs(varyingNormal.z) > abs(varyingNormal.x)) && (abs(varyingNormal.z) > abs(varyingNormal.y)) ) {
+                    texcoords = (varyingNormal.z > 0.0) ? varyingPosition.xy : varyingPosition.yx;
                 }
                 else {
-                    texcoords = (v_normal.y > 0.0)? v_objCoords.zx : v_objCoords.xz;
+                    texcoords = (varyingNormal.y > 0.0)? varyingPosition.zx : varyingPosition.xz;
                 }
 
                 texcoords.x /= 10.0;
