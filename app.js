@@ -73,6 +73,9 @@ const up = vec3(0.0, 1.0, 0.0);
 
 let shadingOption = DEFAULT;
 
+let u_texture;
+let texture;
+
 function updateCameraPosition() {
     eye = vec3(
         radius * Math.cos(radians(theta)) * Math.sin(radians(phi)),
@@ -129,6 +132,25 @@ function calculateNormal(u, v)
 	return crossProduct;
 }
 
+let textureLoaded = false;
+
+function loadTexture() {
+    textureLoaded = false;
+    let img = new Image();
+    img.src = "shell_pattern.jpg";
+    img.onload = function() {
+        try {
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+        }
+        catch (e) {
+            console.log("error");
+            return;
+        }
+        gl.generateMipmap(gl.TEXTURE_2D);
+        textureLoaded = true;
+    };
+}
+
 window.onload = function init() {
     canvas = document.getElementById("gl-canvas");
 
@@ -141,6 +163,7 @@ window.onload = function init() {
 
     gl.clearColor(0.0, 0.223, 0.349, 1.0);
     gl.enable(gl.DEPTH_TEST);
+    gl.pixelStorei( gl.UNPACK_FLIP_Y_WEBGL, 1 );
 
     // vertex array of data for nRows and nColumns of line strips
     for (let i = 0; i < nRows - 1; i++) {
@@ -183,6 +206,12 @@ window.onload = function init() {
     //
     var program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
+
+    u_texture = gl.getUniformLocation(program, "texture");
+
+    gl.uniform1i(u_texture,0);
+    texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
 
     var vBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
@@ -283,6 +312,7 @@ window.onload = function init() {
     phiOutput = document.getElementById("phi-output");
     zoomOutput = document.getElementById("distance-output");
 
+    loadTexture();
     render();
 }
 
@@ -294,7 +324,7 @@ var render = function () {
 	{
 		for (var i = 0; i < pointsArray.length; i += 4) {
 			gl.uniform4fv(vColor, flatten(yellow));
-            gl.drawArrays(gl.LINE_LOOP, i, 4);  			
+            gl.drawArrays(gl.TRIANGLE_FAN, i, 4);
         }
 	}
     else
