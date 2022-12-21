@@ -132,22 +132,12 @@ function calculateNormal(u, v)
 	return crossProduct;
 }
 
-let textureLoaded = false;
-
-function loadTexture() {
-    textureLoaded = false;
-    let img = new Image();
-    img.src = "mosaic.jpg";
-    img.onload = function() {
-        try {
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
-        }
-        catch (e) {
-            console.log("error");
-            return;
-        }
+function applyTexture() {
+    let mosaicImage = new Image();
+    mosaicImage.src = "mosaic.jpg";
+    mosaicImage.onload = function() {
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, mosaicImage);
         gl.generateMipmap(gl.TEXTURE_2D);
-        textureLoaded = true;
     };
 }
 
@@ -312,7 +302,7 @@ window.onload = function init() {
     phiOutput = document.getElementById("phi-output");
     zoomOutput = document.getElementById("distance-output");
 
-    loadTexture();
+    applyTexture();
     render();
 }
 
