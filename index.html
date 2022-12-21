@@ -147,7 +147,7 @@
             // Default Wireframe
             if(sOption == 0.0)
             {
-                gl_FragColor = vec4(textureColor.rgb, 1.0);
+                gl_FragColor = textureColor;
             }
 
             // Per vertex shading
@@ -165,7 +165,7 @@
                 vec4 ambient = ambientProductFragment;
             
                 float Kd = max(dot(L, N), 0.0);
-                vec4 diffuse = Kd*diffuseProductFragment;
+                vec4 diffuse = Kd*textureColor;
             
                 float Ks = pow(max(dot(N, H), 0.0), shininessFragment);
                 vec4 specular = Ks * specularProductFragment;
