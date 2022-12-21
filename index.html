@@ -32,6 +32,11 @@
         varying float shininessFragment;
         // ===== Needed for per fragment shading =====
 
+        // ===== Needed for textures =====
+        attribute vec2 textureCoordinates;
+        varying vec2 varyingTextureCoordinates;
+        // ===== Needed for textures =====
+
         void main()
         {
             // Set the varying variables
@@ -39,6 +44,7 @@
             sOption = shadingOption;
             varyingNormal = vNormal;
             varyingPosition = vPosition;
+            varyingTextureCoordinates = textureCoordinates;
 
             // Default Wireframe
             if(shadingOption == 0.0)
@@ -118,6 +124,7 @@
         varying vec4 fColor;
         varying vec4 varyingNormal;
         varying vec4 varyingPosition;
+        varying vec2 varyingTextureCoordinates;
 
         varying vec3 N, L, E;
         varying vec4 ambientProductFragment, diffuseProductFragment, specularProductFragment;
@@ -128,23 +135,7 @@
             // Default Wireframe
             if(sOption == 0.0)
             {
-                vec2 textureCoordinates;
-
-                if ((abs(varyingNormal.x) > abs(varyingNormal.y)) && (abs(varyingNormal.x) > abs(varyingNormal.z))) {
-                    textureCoordinates = (varyingNormal.x > 0.0) ? varyingPosition.yz : varyingPosition.zy;
-                }
-                else if ((abs(varyingNormal.z) > abs(varyingNormal.x)) && (abs(varyingNormal.z) > abs(varyingNormal.y))) {
-                    textureCoordinates = (varyingNormal.z > 0.0) ? varyingPosition.xy : varyingPosition.yx;
-                }
-                else {
-                    textureCoordinates = (varyingNormal.y > 0.0) ? varyingPosition.zx : varyingPosition.xz;
-                }
-
-                // Scale the texture coordinates so that the texture image appears larger or smaller
-                textureCoordinates.x /= 10.0;
-                textureCoordinates.y /= 10.0;
-
-                vec4 color = texture2D(texture, textureCoordinates);  //base color
+                vec4 color = texture2D(texture, varyingTextureCoordinates);  //base color
                 gl_FragColor = vec4(color.rgb, 1.0);
             }
 

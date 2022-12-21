@@ -41,7 +41,9 @@ let r = 1; // 1 <= r <= 2
 //var v = 0; // 0 <= v <= 2*PI
 
 let pointsArray = [];
-let normalsArray = [];      // TODO: Normals array needs to be calculated
+let normalsArray = [];
+let textureCoordinatesArray = [];
+
 const black = vec4(0.0, 0.0, 0.0, 1.0);
 const yellow = vec4(0.96, 0.933, 0.658, 1.0);
 const white = vec4(1.0, 1.0, 1.0, 1.0);
@@ -129,6 +131,32 @@ function calculateNormal(u, v)
 	return crossProduct;
 }
 
+function calculateTextureCoordinate(vertex, normal) {
+    let textureCoordinate;
+    let scale = 0.1;
+
+    if ((Math.abs(normal[0]) > Math.abs(normal[1])) && (Math.abs(normal[0]) > Math.abs(normal[2]))) {
+        if (normal[0] > 0)
+            textureCoordinate = vec2(vertex[1], vertex[2]);
+        else
+            textureCoordinate = vec2(vertex[2], vertex[1]);
+    }
+    else if ((Math.abs(normal[1]) > Math.abs(normal[0])) && (Math.abs(normal[1]) > Math.abs(normal[2]))) {
+        if (normal[1] > 0)
+            textureCoordinate = vec2(vertex[2], vertex[0]);
+        else
+            textureCoordinate = vec2(vertex[0], vertex[2]);
+    }
+    else {
+        if (normal[2] > 0)
+            textureCoordinate = vec2(vertex[0], vertex[1]);
+        else
+            textureCoordinate = vec2(vertex[1], vertex[0]);
+    }
+
+    return vec2(textureCoordinate[0] * scale, textureCoordinate[1] * scale);
+}
+
 function applyTexture() {
     let mosaicImage = new Image();
     mosaicImage.src = "mosaic.jpg";
@@ -185,6 +213,11 @@ window.onload = function init() {
 			normalsArray.push(secondPointNormal);
 			normalsArray.push(thirdPointNormal);
 			normalsArray.push(fourthPointNormal);
+
+            textureCoordinatesArray.push(calculateTextureCoordinate(p1, firstPointNormal));
+            textureCoordinatesArray.push(calculateTextureCoordinate(p2, secondPointNormal));
+            textureCoordinatesArray.push(calculateTextureCoordinate(p3, thirdPointNormal));
+            textureCoordinatesArray.push(calculateTextureCoordinate(p4, fourthPointNormal));
         }
     }
 
@@ -213,6 +246,14 @@ window.onload = function init() {
     var vNormal = gl.getAttribLocation(program, "vNormal");
     gl.vertexAttribPointer(vNormal, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vNormal);
+
+    var tcBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, tcBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(textureCoordinatesArray), gl.STATIC_DRAW);
+
+    var tCoordinate = gl.getAttribLocation(program, "textureCoordinates");
+    gl.vertexAttribPointer(tCoordinate, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(tCoordinate);
 
 	vColor = gl.getUniformLocation(program, "vColor");
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
