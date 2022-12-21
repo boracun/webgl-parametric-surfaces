@@ -105,7 +105,7 @@ function calculateVertex(u, v)
 {
 	let x = (R + r * Math.cos(v)) * (Math.pow(a, u) * Math.cos(j * u));
 	let y = (R + r * Math.cos(v)) * (-Math.pow(a, u) * Math.sin(j * u));
-	let z = -c * (b + r * Math.sin(v)) * Math.pow(a, u) * k + 10;
+	let z = -c * (b + r * Math.sin(v)) * Math.pow(a, u) * k + 15;
 	
 	return vec4(x, y, z, 1.0);
 }
