@@ -31,9 +31,8 @@
         // ===== Needed for per fragment shading =====
 
         // ===== Needed for textures =====
-        varying vec3 v_normal;
-        varying vec3 v_objCoords;
-        varying vec3 v_eyeCoords;
+        varying vec4 v_normal;
+        varying vec4 v_objCoords;
         // ===== Needed for textures =====
 
         void main()
@@ -41,10 +40,8 @@
 			fColor = vColor;
             sOption = shadingOption;
 
-            vec4 eyeCoords = modelViewMatrix * vPosition;
-            v_normal = normalize(vNormal.xyz);
-            v_objCoords = vPosition.xyz;
-            v_eyeCoords = eyeCoords.xyz/eyeCoords.w;
+            v_normal = vNormal;
+            v_objCoords = vPosition;
 
             // Default Wireframe
             if(shadingOption == 0.0)
@@ -126,9 +123,8 @@
         varying float shininessFragment;
 
         uniform sampler2D texture;
-        varying vec3 v_normal;
-        varying vec3 v_objCoords;
-        varying vec3 v_eyeCoords;
+        varying vec4 v_normal;
+        varying vec4 v_objCoords;
 
         void main()
         {
