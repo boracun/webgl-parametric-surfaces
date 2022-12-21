@@ -1,6 +1,6 @@
 // Constants
 const DEGREE_CHANGE_AMOUNT = 15.0;
-const ZOOM_CHANGE_AMOUNT = 0.25;
+const ZOOM_CHANGE_AMOUNT = 2;
 const INITIAL_PROJECTION_CONSTANT = 10.0;
 
 const DEFAULT = 0
@@ -137,7 +137,7 @@ let textureLoaded = false;
 function loadTexture() {
     textureLoaded = false;
     let img = new Image();
-    img.src = "shell_pattern.jpg";
+    img.src = "mosaic.jpg";
     img.onload = function() {
         try {
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
