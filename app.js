@@ -8,13 +8,13 @@ const PER_VERTEX_OPTION = 1;
 const PER_FRAGMENT_OPTION = 2;
 const REALISTIC_OPTION = 3;
 
-const lightPosition = vec4(1.0, 1.0, 1.0, 0.0);
+const lightPosition = vec4(1.0, -1.0, 1.0, 0.0);
 const lightAmbient = vec4(0.2, 0.2, 0.2, 1.0);
 const lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
 const lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
 
-const materialAmbient = vec4(1.0, 0.0, 1.0, 1.0);
-const materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
+const materialAmbient = vec4(0.3, 0.3, 0.3, 1.0);
+const materialDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
 const materialSpecular = vec4(1.0, 1.0, 1.0, 1.0);
 const materialShininess = 20.0;
 
@@ -56,7 +56,7 @@ let r = 1; // 1 <= r <= 2
 let rRange = 2 - 1;
 
 let pointsArray = [];
-let normalsArray = [];      // TODO: Normals array needs to be calculated
+let normalsArray = [];
 const black = vec4(0.0, 0.0, 0.0, 1.0);
 const yellow = vec4(0.96, 0.933, 0.658, 1.0);
 const white = vec4(1.0, 1.0, 1.0, 1.0);
@@ -129,6 +129,15 @@ function updateProjection() {
 
     projectionMatrix = ortho(left, right, bottom, ytop, near, far);
     gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
+}
+
+function applyTexture() {
+    let mosaicImage = new Image();
+    mosaicImage.src = "mosaic.jpg";
+    mosaicImage.onload = function() {
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, mosaicImage);
+        gl.generateMipmap(gl.TEXTURE_2D);
+    };
 }
 
 function calculateVertexAndNormals()
@@ -233,14 +242,19 @@ window.onload = function init() {
 
     gl.clearColor(0.0, 0.223, 0.349, 1.0);
     gl.enable(gl.DEPTH_TEST);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
 
     //
     //  Load shaders and initialize attribute buffers
     //
     program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
+    
+    gl.uniform1i(gl.getUniformLocation(program, "texture"), 0);
+    let texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
 
-	sendData();
+	  sendData();
 
     updateCameraPosition();     // Sets the model-view matrix
     updateProjection();         // Sets the projection matrix
@@ -254,6 +268,7 @@ window.onload = function init() {
     gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"), flatten(specularProduct));
     gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"), flatten(lightPosition));
     gl.uniform1f(gl.getUniformLocation(program, "shininess"), materialShininess);
+    gl.uniform1f(gl.getUniformLocation(program, "shadingOption"), shadingOption);
 
     document.getElementById("increase-theta-button").onclick = function () {
         theta += DEGREE_CHANGE_AMOUNT;
@@ -365,6 +380,7 @@ window.onload = function init() {
     phiOutput = document.getElementById("phi-output");
     zoomOutput = document.getElementById("distance-output");
 
+    applyTexture();
     render();
 }
 
@@ -376,7 +392,7 @@ var render = function () {
 	{
 		for (var i = 0; i < pointsArray.length; i += 4) {
 			gl.uniform4fv(vColor, flatten(yellow));
-            gl.drawArrays(gl.LINE_LOOP, i, 4);  			
+            gl.drawArrays(gl.LINE_LOOP, i, 4);
         }
 	}
     else

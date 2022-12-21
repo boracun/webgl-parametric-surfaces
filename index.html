@@ -6,7 +6,10 @@
 
     <script id="vertex-shader" type="x-shader/x-vertex">
         attribute vec4 vPosition;
+        varying vec4 fPosition;
+
 		uniform vec4 vColor;
+        varying vec4 fColor;
 
         uniform mat4 modelViewMatrix;
         uniform mat4 projectionMatrix;
@@ -15,13 +18,14 @@
 
         // ===== Needed for per vertex shading =====
         attribute vec4 vNormal;
-
-        varying vec4 fColor;
+        varying vec4 fNormal;
 
         uniform vec4 ambientProduct, diffuseProduct, specularProduct;
         uniform vec4 lightPosition;
         uniform float shininess;
         uniform mat3 normalMatrix;
+
+        varying float vertexKd;
         // ===== Needed for per vertex shading =====
 
         // ===== Needed for per fragment shading =====
@@ -32,8 +36,11 @@
 
         void main()
         {
+            // Set the varying variables
 			fColor = vColor;
             sOption = shadingOption;
+            fNormal = vNormal;
+            fPosition = vPosition;
 
             // Default Wireframe
             if(shadingOption == 0.0)
@@ -54,7 +61,7 @@
                 N = normalize(normalMatrix*vNormal.xyz);
 
                 gl_Position = projectionMatrix * modelViewMatrix * vPosition;
-                
+
                 ambientProductFragment = ambientProduct;
                 diffuseProductFragment = diffuseProduct;
                 specularProductFragment = specularProduct;
@@ -87,8 +94,7 @@
                 // Compute terms in the illumination equation
                 vec4 ambient = ambientProduct;
 
-                float Kd = max(dot(L, N), 0.0);
-                vec4 diffuse = Kd*diffuseProduct;
+                vertexKd = max(dot(L, N), 0.0);
 
                 float Ks = pow(max(dot(N, H), 0.0), shininess);
                 vec4 specular = Ks * specularProduct;
@@ -96,9 +102,9 @@
                 if(dot(L, N) < 0.0) {
                     specular = vec4(0.0, 0.0, 0.0, 1.0);
                 }
-            
+
                 gl_Position = projectionMatrix * modelViewMatrix * vPosition;
-                fColor = ambient + diffuse + specular;
+                fColor = ambient + specular;    // diffuse is added in the fragment shader using vertexKd and textureColor
                 fColor.a = 1.0;
             }
         }
@@ -106,9 +112,14 @@
 
     <script id="fragment-shader" type="x-shader/x-fragment">
         precision mediump float;
+        
+        uniform sampler2D texture;
 
         varying float sOption;
         varying vec4 fColor;
+        varying vec4 fNormal;
+        varying vec4 fPosition;
+        varying float vertexKd;
 
         varying vec3 N, L, E;
         varying vec4 ambientProductFragment, diffuseProductFragment, specularProductFragment;
@@ -116,6 +127,25 @@
 
         void main()
         {
+            // Calculate the color according to the texture
+            vec2 textureCoordinates;
+
+            if ((abs(fNormal.x) > abs(fNormal.y)) && (abs(fNormal.x) > abs(fNormal.z))) {
+                textureCoordinates = (fNormal.x > 0.0) ? fPosition.yz : fPosition.zy;
+            }
+            else if ((abs(fNormal.z) > abs(fNormal.x)) && (abs(fNormal.z) > abs(fNormal.y))) {
+                textureCoordinates = (fNormal.z > 0.0) ? fPosition.xy : fPosition.yx;
+            }
+            else {
+                textureCoordinates = (fNormal.y > 0.0) ? fPosition.zx : fPosition.xz;
+            }
+
+            // Scale the texture coordinates so that the texture image appears larger or smaller
+            textureCoordinates.x /= 10.0;
+            textureCoordinates.y /= 10.0;
+
+            vec4 textureColor = texture2D(texture, textureCoordinates);
+
             // Default Wireframe
             if(sOption == 0.0)
             {
@@ -125,7 +155,7 @@
             // Per vertex shading
             else if(sOption == 1.0)
             {
-                gl_FragColor = fColor;
+                gl_FragColor = fColor + vertexKd * textureColor;
             }
 
             // Per fragment shading
@@ -137,7 +167,7 @@
                 vec4 ambient = ambientProductFragment;
             
                 float Kd = max(dot(L, N), 0.0);
-                vec4 diffuse = Kd*diffuseProductFragment;
+                vec4 diffuse = Kd*textureColor;
             
                 float Ks = pow(max(dot(N, H), 0.0), shininessFragment);
                 vec4 specular = Ks * specularProductFragment;
