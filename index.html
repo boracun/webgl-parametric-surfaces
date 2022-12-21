@@ -6,7 +6,7 @@
 
     <script id="vertex-shader" type="x-shader/x-vertex">
         attribute vec4 vPosition;
-        varying vec4 varyingPosition;
+        varying vec4 fPosition;
 
 		uniform vec4 vColor;
         varying vec4 fColor;
@@ -18,7 +18,7 @@
 
         // ===== Needed for per vertex shading =====
         attribute vec4 vNormal;
-        varying vec4 varyingNormal;
+        varying vec4 fNormal;
 
         uniform vec4 ambientProduct, diffuseProduct, specularProduct;
         uniform vec4 lightPosition;
@@ -37,8 +37,8 @@
             // Set the varying variables
 			fColor = vColor;
             sOption = shadingOption;
-            varyingNormal = vNormal;
-            varyingPosition = vPosition;
+            fNormal = vNormal;
+            fPosition = vPosition;
 
             // Default Wireframe
             if(shadingOption == 0.0)
@@ -116,8 +116,8 @@
 
         varying float sOption;
         varying vec4 fColor;
-        varying vec4 varyingNormal;
-        varying vec4 varyingPosition;
+        varying vec4 fNormal;
+        varying vec4 fPosition;
 
         varying vec3 N, L, E;
         varying vec4 ambientProductFragment, diffuseProductFragment, specularProductFragment;
@@ -125,27 +125,29 @@
 
         void main()
         {
+            // Calculate the color according to the texture
+            vec2 textureCoordinates;
+
+            if ((abs(fNormal.x) > abs(fNormal.y)) && (abs(fNormal.x) > abs(fNormal.z))) {
+                textureCoordinates = (fNormal.x > 0.0) ? fPosition.yz : fPosition.zy;
+            }
+            else if ((abs(fNormal.z) > abs(fNormal.x)) && (abs(fNormal.z) > abs(fNormal.y))) {
+                textureCoordinates = (fNormal.z > 0.0) ? fPosition.xy : fPosition.yx;
+            }
+            else {
+                textureCoordinates = (fNormal.y > 0.0) ? fPosition.zx : fPosition.xz;
+            }
+
+            // Scale the texture coordinates so that the texture image appears larger or smaller
+            textureCoordinates.x /= 10.0;
+            textureCoordinates.y /= 10.0;
+
+            vec4 textureColor = texture2D(texture, textureCoordinates);
+
             // Default Wireframe
             if(sOption == 0.0)
             {
-                vec2 textureCoordinates;
-
-                if ((abs(varyingNormal.x) > abs(varyingNormal.y)) && (abs(varyingNormal.x) > abs(varyingNormal.z))) {
-                    textureCoordinates = (varyingNormal.x > 0.0) ? varyingPosition.yz : varyingPosition.zy;
-                }
-                else if ((abs(varyingNormal.z) > abs(varyingNormal.x)) && (abs(varyingNormal.z) > abs(varyingNormal.y))) {
-                    textureCoordinates = (varyingNormal.z > 0.0) ? varyingPosition.xy : varyingPosition.yx;
-                }
-                else {
-                    textureCoordinates = (varyingNormal.y > 0.0) ? varyingPosition.zx : varyingPosition.xz;
-                }
-
-                // Scale the texture coordinates so that the texture image appears larger or smaller
-                textureCoordinates.x /= 10.0;
-                textureCoordinates.y /= 10.0;
-
-                vec4 color = texture2D(texture, textureCoordinates);  //base color
-                gl_FragColor = vec4(color.rgb, 1.0);
+                gl_FragColor = vec4(textureColor.rgb, 1.0);
             }
 
             // Per vertex shading
