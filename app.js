@@ -33,10 +33,10 @@ let b = 7; // 3 <= b <= 16
 let c = 1; // 1 <= c <= 2
 let j = 2; // 2 <= j <= 12
 let k = 1; // 0 <= k <= 3
-let l = 0; // 0 <= l <= 3
+let l = 1; // 0 <= l <= 3
 let m = 0; // -3 <= m <= 3
-let R = 1.375; // 1 <= R <= 2
-let r = 1; // 1 <= r <= 2
+let outerRadius = 1.375; // 1 <= R <= 2
+let innerRadius = 1; // 1 <= r <= 2
 
 let pointsArray = [];
 let normalsArray = [];
@@ -186,27 +186,29 @@ function sendData()
 
 function calculateVertex(u, v)
 {
-	let x = (R + r * Math.cos(v)) * (Math.pow(a, u) * Math.cos(j * u));
-	let y = (R + r * Math.cos(v)) * (-Math.pow(a, u) * Math.sin(j * u));
-	let z = -c * (b + r * Math.sin(v)) * Math.pow(a, u) * k + 15;
+	let x = (outerRadius + innerRadius * Math.cos(v)) * (Math.pow(a, u) * Math.cos(j * u));
+	let y = (outerRadius + innerRadius * Math.cos(v)) * (-Math.pow(a, u) * Math.sin(j * u));
+	let z = -c * (b + innerRadius * Math.sin(v)) * Math.pow(a, u) * k + 15;
 	
 	return vec4(x, y, z, 1.0);
 }
 
 function calculateNormal(u, v)
 {
-	let firstVectorX = Math.pow(a, u) * Math.cos(j * u) * (-r * Math.sin(v));
-	let firstVectorY = -Math.pow(a, u) * Math.sin(j * u) * (-r * Math.sin(v));
-	let firstVectorZ = -c * Math.pow(a, u) * k * (r * Math.cos(v));
+	let firstVectorX = Math.pow(a, u) * Math.cos(j * u) * (-innerRadius * Math.sin(v));
+	let firstVectorY = -Math.pow(a, u) * Math.sin(j * u) * (-innerRadius * Math.sin(v));
+	let firstVectorZ = -c * Math.pow(a, u) * k * (innerRadius * Math.cos(v));
 			
-	let secondVectorX = (R + r * Math.cos(v)) * (Math.pow(a, u) * Math.log(a) * Math.cos(j * u) + Math.pow(a, u) * (-j * Math.sin(j * u)));
-	let secondVectorY = (R + r * Math.cos(v)) * (-Math.pow(a, u) * Math.log(a) * Math.sin(j * u) - Math.pow(a, u) * (j * Math.cos(j * u)));
-	let secondVectorZ = -c * (b + r * Math.sin(v)) * Math.pow(a, u) * Math.log(a) * k;
+	let secondVectorX = (outerRadius + innerRadius * Math.cos(v)) * (Math.pow(a, u) * Math.log(a) * Math.cos(j * u) + Math.pow(a, u) * (-j * Math.sin(j * u)));
+	let secondVectorY = (outerRadius + innerRadius * Math.cos(v)) * (-Math.pow(a, u) * Math.log(a) * Math.sin(j * u) - Math.pow(a, u) * (j * Math.cos(j * u)));
+	let secondVectorZ = -c * (b + innerRadius * Math.sin(v)) * Math.pow(a, u) * Math.log(a) * k;
 			
 	let firstVector = vec4(firstVectorX, firstVectorY, firstVectorZ, 0.0);
 	let secondVector = vec4(secondVectorX, secondVectorY, secondVectorZ, 0.0);
 	//console.log(firstVector, secondVector);
 	let crossProduct;
+    //console.log(c, b, innerRadius, Math.sin(v), Math.pow(a, u), Math.log(a), k);
+    //console.log(cross(firstVector, secondVector));
 	crossProduct = vec4(normalize(cross(firstVector, secondVector)));
 	
 	return crossProduct;
@@ -314,53 +316,53 @@ window.onload = function init() {
     };
 	
 	document.getElementById("number-a").onchange = function () {
-        a = document.getElementById("number-a").value;
+        a = Number(document.getElementById("number-a").value);
 		resetScene();
     };
 	
 	document.getElementById("number-b").onchange = function () {
-        b = document.getElementById("number-b").value;
+        b = Number(document.getElementById("number-b").value);
 		resetScene();
     };
 	
 	document.getElementById("number-c").onchange = function () {
-        c = document.getElementById("number-c").value;
+        c = Number(document.getElementById("number-c").value);
 		resetScene();
     };
 	
 	document.getElementById("number-j").onchange = function () {
-        j = document.getElementById("number-j").value;
+        j = Number(document.getElementById("number-j").value);
 		resetScene();
     };
 	
 	document.getElementById("number-k").onchange = function () {
-        k = document.getElementById("number-k").value;
+        k = Number(document.getElementById("number-k").value);
 		resetScene();
     };
 	
 	document.getElementById("number-l").onchange = function () {
-        l = document.getElementById("number-l").value;
+        l = Number(document.getElementById("number-l").value);
 		resetScene();
     };
 	
 	document.getElementById("number-m").onchange = function () {
-        m = document.getElementById("number-m").value;
+        m = Number(document.getElementById("number-m").value);
 		resetScene();
     };
 	
-	document.getElementById("number-R").onchange = function () {
-        R = document.getElementById("number-R").value;
+	document.getElementById("number-outer-radius").onchange = function () {
+        outerRadius = Number(document.getElementById("number-outer-radius").value);
 		resetScene();
     };
 	
-	document.getElementById("number-r").onchange = function () {
-        r = document.getElementById("number-r").value;
+	document.getElementById("number-inner-radius").onchange = function () {
+        innerRadius = Number(document.getElementById("number-inner-radius").value);
 		resetScene();
     };
 	
-    thetaOutput = document.getElementById("theta-output");
-    phiOutput = document.getElementById("phi-output");
-    zoomOutput = document.getElementById("distance-output");
+    thetaOutput = Number(document.getElementById("theta-output"));
+    phiOutput = Number(document.getElementById("phi-output"));
+    zoomOutput = Number(document.getElementById("distance-output"));
 
     applyTexture();
     render();
