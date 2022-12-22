@@ -58,7 +58,7 @@
                 else L = normalize(lightPosition.xyz - pos);
 
                 E = -normalize(pos);
-                N = normalize(normalMatrix*vNormal.xyz);
+                N = normalize(vNormal.xyz);
 
                 gl_Position = projectionMatrix * modelViewMatrix * vPosition;
 
@@ -89,7 +89,7 @@
                 vec3 H = normalize(L + E);
 
                 // Transform vertex normal into eye coordinates
-                vec3 N = normalize(normalMatrix*vNormal.xyz);
+                vec3 N = normalize(vNormal.xyz);
 
                 // Compute terms in the illumination equation
                 vec4 ambient = ambientProduct;
@@ -191,9 +191,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400&family=Poppins:wght@300&display=swap" rel="stylesheet">
 </head>
 <body>	
-    <div id="list" class="button-list" style="padding: 10px">
+    <div id="button-list" class="list" style="padding: 10px">
 		<button id="increase-theta-button" class="button">Rotate the Camera CCW</button>
-		<div id="theta-output" class="button">The theta angle: 0 degrees</div>
 		<button id="decrease-theta-button" class="button">Rotate the Camera CW</button>
 		<button id="increase-phi-button" class="button">Rotate the Camera Lower</button>
 		<button id="decrease-phi-button" class="button">Rotate the Camera Upper</button>
@@ -206,7 +205,7 @@
 		<button id="per-fragment-button" class="button">Render with Per Fragment Shading</button>
     </div>
 	
-	<div id="output-list" class="button-list">
+	<div id="output-list" class="list">
         <p id="theta-output">The theta angle: 0 degrees</p>
         <p id="phi-output">The phi angle: 90 degrees</p>
         <p id="distance-output">The zoom amount: 0</p>
@@ -216,7 +215,7 @@
         Oops ... your browser doesn't support the HTML5 canvas element
     </canvas>
 	
-	<div id="list" class="slider-list" style="display:flex; padding: 10px">
+	<div id="slider-list" class="list" style="display:flex; padding: 10px">
 		<div id="part1" style="padding: 10px">
 			<label for="number-a">Variable a [1.1, 1.3]: </label>
 			<input type="number" id="number-a" min="1.1" max="1.3" value="1.2" step="0.1">
@@ -237,7 +236,7 @@
 			<input type="number" id="number-l" min="0" max="3" value="1">
 		</div>
 		
-		<div id="part1" style="padding: 10px">			
+		<div id="part2" style="padding: 10px">			
 			<label for="number-m">Variable m [-3, 3]: </label>
 			<input type="number" id="number-m" min="-3" max="3" value="0">
 			
