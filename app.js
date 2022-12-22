@@ -369,9 +369,10 @@ window.onload = function init() {
         nColumns = Number(document.getElementById("number-segment-v").value);
 		resetScene();
     };
-    thetaOutput = Number(document.getElementById("theta-output"));
-    phiOutput = Number(document.getElementById("phi-output"));
-    zoomOutput = Number(document.getElementById("distance-output"));
+
+    thetaOutput = document.getElementById("theta-output");
+    phiOutput = document.getElementById("phi-output");
+    zoomOutput = document.getElementById("distance-output");
 
     applyTexture();
     render();

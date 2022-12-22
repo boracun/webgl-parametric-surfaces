@@ -38,3 +38,7 @@ input {
     display: block; /* Make the buttons appear below each other */
     font-family: 'Poppins', sans-serif;
 }
+
+#output-list {
+    width: 16%;
+}
