@@ -360,6 +360,15 @@ window.onload = function init() {
 		resetScene();
     };
 	
+    document.getElementById("number-segment-u").onchange = function () {
+        nRows = Number(document.getElementById("number-segment-u").value);
+		resetScene();
+    };
+
+    document.getElementById("number-segment-v").onchange = function () {
+        nColumns = Number(document.getElementById("number-segment-v").value);
+		resetScene();
+    };
     thetaOutput = Number(document.getElementById("theta-output"));
     phiOutput = Number(document.getElementById("phi-output"));
     zoomOutput = Number(document.getElementById("distance-output"));
