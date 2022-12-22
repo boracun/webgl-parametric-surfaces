@@ -33,8 +33,6 @@ let b = 7; // 3 <= b <= 16
 let c = 1; // 1 <= c <= 2
 let j = 2; // 2 <= j <= 12
 let k = 1; // 0 <= k <= 3
-let l = 1; // 0 <= l <= 3
-let m = 0; // -3 <= m <= 3
 let outerRadius = 1.375; // 1 <= R <= 2
 let innerRadius = 1; // 1 <= r <= 2
 
@@ -337,16 +335,6 @@ window.onload = function init() {
 	
 	document.getElementById("number-k").onchange = function () {
         k = Number(document.getElementById("number-k").value);
-		resetScene();
-    };
-	
-	document.getElementById("number-l").onchange = function () {
-        l = Number(document.getElementById("number-l").value);
-		resetScene();
-    };
-	
-	document.getElementById("number-m").onchange = function () {
-        m = Number(document.getElementById("number-m").value);
 		resetScene();
     };
 	
