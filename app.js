@@ -28,32 +28,15 @@ let nColumns = 40;
 
 // data for radial hat function: sin(Pi*r)/(Pi*r)
 
-let a = 1.1; // 1.1 <= a <= 1.3
-let aRange = 1.3 - 1.1;
-
-let b = 3; // 3 <= b <= 16
-let bRange = 16 - 3;
-
+let a = 1.2; // 1.1 <= a <= 1.3
+let b = 7; // 3 <= b <= 16
 let c = 1; // 1 <= c <= 2
-let cRange = 2 - 1;
-
 let j = 2; // 2 <= j <= 12
-letjRange = 12 - 2;
-
-let k = 0; // 0 <= k <= 3
-let kRange = 3 - 1;
-
+let k = 1; // 0 <= k <= 3
 let l = 0; // 0 <= l <= 3
-let lRange = 3 - 0;
-
-let m = -3; // -3 <= m <= 3
-let mRange = 3 - (-3);
-
-let R = 1; // 1 <= R <= 2
-let RRange = 2 - 1;
-
+let m = 0; // -3 <= m <= 3
+let R = 1.375; // 1 <= R <= 2
 let r = 1; // 1 <= r <= 2
-let rRange = 2 - 1;
 
 let pointsArray = [];
 let normalsArray = [];
@@ -61,7 +44,6 @@ const black = vec4(0.0, 0.0, 0.0, 1.0);
 const yellow = vec4(0.96, 0.933, 0.658, 1.0);
 const white = vec4(1.0, 1.0, 1.0, 1.0);
 var vColor;
-let sliderDivide = 5;
 
 var canvas;
 var gl;
@@ -69,7 +51,7 @@ var gl;
 var near = -100;
 var far = 100;
 var radius = 1.0;
-var theta = 90.0;    // Theta determines the degree between: x-axis - the center of the sphere - the camera position
+var theta = 0.0;    // Theta determines the degree between: x-axis - the center of the sphere - the camera position
 var phi = 90.0;     // Phi determines the degree between: the top of the sphere - the center of the sphere - the camera position
 
 var left = -INITIAL_PROJECTION_CONSTANT;
@@ -206,7 +188,7 @@ function calculateVertex(u, v)
 {
 	let x = (R + r * Math.cos(v)) * (Math.pow(a, u) * Math.cos(j * u));
 	let y = (R + r * Math.cos(v)) * (-Math.pow(a, u) * Math.sin(j * u));
-	let z = -c * (b + r * Math.sin(v)) * Math.pow(a, u) * k;
+	let z = -c * (b + r * Math.sin(v)) * Math.pow(a, u) * k + 15;
 	
 	return vec4(x, y, z, 1.0);
 }
